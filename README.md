@@ -17,12 +17,14 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
 - Node 14 must be installed
 - PM2 must be installed and available as `pm2` in your `PATH`, and should be started across reboots
 - Project must have an `ecosystem.config.js` file in the root folder (see https://pm2.keymetrics.io/docs/usage/application-declaration/)
+  -  This file tells PM2 how to run your application. See _Usage_ for an example. 
 - Project must be built in standalone mode (set `output` to `'standalone'` in `next.config.js`)
 
 ### Usage
 
 To use these re-usable workflows to deploy your GraphCommerce project to specific environment (for example _test_),
-create a file under `.github/workflows/deploy-test.yml`, based on the below example:
+create a file under `.github/workflows/deploy-test.yml` which invokes the re-usable workflows in this repository. For
+example:
 
 ```yaml
 name: Deploy to Test
@@ -46,7 +48,7 @@ jobs:
     # Needed to inherit GitHub secrets (i.e. SSH_KEY; see below)
     secrets: inherit
     with:
-      environment: test # Refers to a GitHub environment to inherit secrets from
+      environment: test # Refers to the GitHub environment to inherit secrets from
       frontUrl: 'https://shop.example.com'
       magentoEndpoint: 'https://magento.example.com/graphql'
   activate-artifact:
@@ -65,8 +67,23 @@ and add the `SSH_KEY` secret to it, so the  workflows can access the target serv
 should contain the full content of an unencrypted SSH private key file (i.e. `~/.ssh/id_rsa`). The associated public
 key must be in the `~/.ssh/authorized_keys` file on the target server. See also https://github.com/appleboy/ssh-action#setting-up-a-ssh-key
 
+An example `ecosystem.config.js` that should work out of the box (you may want to tweak the number of processes):
+
+```js
+module.exports = {
+    apps: [
+        {
+            name: "graphcommerce",
+            script: "./server.js",
+            exec_mode: "cluster",
+            instances: 20
+        }
+    ]
+}
+```
+
 ## TODOs
-- Only tested on a single platform so this is still very beta
+- Only tested on a single platform so this is still somewhat beta
 - Investigate if we can convert this into a custom GitHub action
 - Some hardcoded things may need to be made configurable
 - Replace VERCEL env variables with more self-explanatory and fine-grained variables (requires changes in GraphCommerce)
