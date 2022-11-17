@@ -1,0 +1,57 @@
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: The github environment to inherit secrets from
+        type: string
+        required: true
+      serverHost:
+        type: string
+        required: true
+      serverPort:
+        type: string
+        required: true
+      serverUser:
+        type: string
+        required: true
+
+jobs:
+  activate-artifact:
+    name: Upload and activate artifact
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: deployment-artifact
+      - name: Upload to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ inputs.serverHost }}
+          username: ${{ inputs.serverUser }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ inputs.serverPort }}
+          source: ${{ github.sha }}.tar.gz
+          target: ./artifacts
+      - name: Activate
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        with:
+          host: ${{ inputs.serverHost }}
+          username: ${{ inputs.serverUser }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ inputs.serverPort }}
+          source: ${{ github.sha }}.tar.gz
+          target: ./artifacts
+          envs: GITHUB_SHA,DOMAIN
+          script_stop: true
+          script: |
+            mkdir -p ./graphcommerce
+            rm -rf ./graphcommerce/*
+            rm -rf ./graphcommerce/.next
+            tar xzf ./artifacts/${GITHUB_SHA}.tar.gz -C ./graphcommerce
+            cd ./graphcommerce
+            pm2 restart ecosystem.config.js
+            pm2 save

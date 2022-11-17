@@ -1,0 +1,70 @@
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: The github environment to inherit secrets from
+        type: string
+        required: true
+      frontUrl:
+        description: The URL of the frontend application (including https:// prefix)
+        type: string
+        required: true
+      magentoEndpoint:
+        description: The URL of the Magento GraphQL API (including https:// prefix)
+        type: string
+        required: true
+      googleAnalyticsId:
+        description: Google Analytics ID
+        type: string
+        required: false
+      googleTagManagerId:
+        description: Google Tag Manager ID
+        type: string
+        required: false
+      additionalEnv:
+        description: Additional environment variables to append to the .env file (be sure to escape double-quotes)
+        type: string
+        required: false
+
+jobs:
+  build-artifact:
+    name: Build deployment artifact
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - name: Restore cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}-
+      - name: Dependencies
+        run: yarn install --frozen-lockfile --immutable
+      - name: Build
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          cp .env.example .env
+          echo "NEXT_PUBLIC_GRAPHQL_ENDPOINT=\"${{ inputs.frontUrl }}/api/graphql\"" >> .env
+          echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
+          echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
+          echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
+          echo "${{ inputs.additionalEnv }}" >> .env
+          STANDALONE=1 yarn build
+          sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
+          cp -R public .next/standalone/public
+          cp ecosystem.config.js .next/standalone/
+          cp -R .next/static .next/standalone/.next/static
+          tar -czf "${GITHUB_SHA}".tar.gz -C .next/standalone .
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-artifact
+          path: ${{ github.sha }}.tar.gz
