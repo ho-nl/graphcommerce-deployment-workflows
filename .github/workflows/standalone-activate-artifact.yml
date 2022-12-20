@@ -48,7 +48,7 @@ jobs:
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
-            echo "$(node -v)"
+            echo $(node -v)
             mkdir -p ./graphcommerce
             rm -rf ./graphcommerce/*
             rm -rf ./graphcommerce/.next
