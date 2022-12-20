@@ -34,6 +34,9 @@ jobs:
           port: ${{ inputs.serverPort }}
           source: ${{ github.sha }}.tar.gz
           target: ./artifacts
+      - name: Node version
+        run: echo "$(node -v)"
+        shell: bash
       - name: Activate
         uses: appleboy/ssh-action@master
         env:
