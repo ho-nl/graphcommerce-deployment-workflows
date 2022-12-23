@@ -36,7 +36,7 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}${{ inputs.applicationSuffixId }}.tar.gz
+          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
           target: ./artifacts
       - name: Node version
         run: echo "$(node -v)"
@@ -50,7 +50,7 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}${{ inputs.applicationSuffixId }}.tar.gz
+          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
           target: ./artifacts
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
@@ -59,7 +59,7 @@ jobs:
             mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}
             rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/*
             rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/.next
-            tar xzf ./artifacts/${GITHUB_SHA}${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}
+            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}
   activate-applications:
     name: Activate applications
     runs-on: ubuntu-latest

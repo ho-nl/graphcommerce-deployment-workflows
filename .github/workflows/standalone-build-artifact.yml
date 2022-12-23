@@ -67,7 +67,7 @@ jobs:
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
           cp -R .next/static .next/standalone/.next/static
-          tar -czf "${GITHUB_SHA}${{ inputs.applicationSuffixId }}".tar.gz -C .next/standalone .
+          tar -czf "${GITHUB_SHA}_${{ inputs.applicationSuffixId }}".tar.gz -C .next/standalone .
       - name: Node version
         run: echo "$(node -v)"
         shell: bash
@@ -75,4 +75,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: deployment-artifact
-          path: ${{ github.sha }}${{ inputs.applicationSuffixId }}.tar.gz
+          path: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
