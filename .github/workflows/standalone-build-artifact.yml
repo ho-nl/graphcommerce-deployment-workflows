@@ -59,7 +59,7 @@ jobs:
           echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
           echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
           echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
-          echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
+          [[ ! -z "${{ inputs.googleTagManagerId }}" ]] && echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
           echo "${{ inputs.additionalEnv }}" >> .env
           echo $(node -v)
           STANDALONE=1 yarn build
