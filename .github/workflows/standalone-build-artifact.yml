@@ -61,6 +61,7 @@ jobs:
           echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
           [[ ! -z "${{ inputs.googleTagManagerId }}" ]] && echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
           echo "${{ inputs.additionalEnv }}" >> .env
+          [ $(curl -s -o /dev/null -w "%{http_code}" ${{ inputs.frontUrl }}/api/graphql) != "200"  ] && sed -i '/VERCEL_ENV/d' .env && sed -i '/VERCEL=/d' .env # if api is not available then don't do a production build
           echo $(node -v)
           STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
