@@ -1,0 +1,44 @@
+on:
+  workflow_call:
+    inputs:
+      applicationSuffixId:
+        description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
+        type: string
+        required: true
+      environment:
+        description: The github environment to inherit secrets from
+        type: string
+        required: true
+      serverHost:
+        type: string
+        required: true
+      serverPort:
+        type: string
+        required: true
+      serverUser:
+        type: string
+        required: true
+
+jobs:
+  activate-applications:
+    name: Activate applications
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Activate
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        with:
+          host: ${{ inputs.serverHost }}
+          username: ${{ inputs.serverUser }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ inputs.serverPort }}
+          envs: GITHUB_SHA,DOMAIN
+          script_stop: true
+          script: |
+            cd ./graphcommerce1
+            cp ecosystem.config.js ..
+            cd ..
+            pm2 restart ecosystem.config.js
+            pm2 save

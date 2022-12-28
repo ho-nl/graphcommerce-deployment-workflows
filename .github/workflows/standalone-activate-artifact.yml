@@ -60,25 +60,3 @@ jobs:
             rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/*
             rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/.next
             tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}
-  activate-applications:
-    name: Activate applications
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-      - name: Activate
-        uses: appleboy/ssh-action@master
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-        with:
-          host: ${{ inputs.serverHost }}
-          username: ${{ inputs.serverUser }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ inputs.serverPort }}
-          envs: GITHUB_SHA,DOMAIN
-          script_stop: true
-          script: |
-            cd ./graphcommerce1
-            cp ecosystem.config.js ..
-            cd ..
-            pm2 restart ecosystem.config.js
-            pm2 save
