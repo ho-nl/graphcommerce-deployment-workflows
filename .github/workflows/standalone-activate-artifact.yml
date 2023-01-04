@@ -1,6 +1,10 @@
 on:
   workflow_call:
     inputs:
+      applicationSuffixId:
+        description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
+        type: string
+        required: false
       environment:
         description: The github environment to inherit secrets from
         type: string
@@ -32,8 +36,11 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}.tar.gz
+          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
           target: ./artifacts
+      - name: Node version
+        run: echo "$(node -v)"
+        shell: bash
       - name: Activate
         uses: appleboy/ssh-action@master
         env:
@@ -43,15 +50,13 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}.tar.gz
+          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
           target: ./artifacts
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
-            mkdir -p ./graphcommerce
-            rm -rf ./graphcommerce/*
-            rm -rf ./graphcommerce/.next
-            tar xzf ./artifacts/${GITHUB_SHA}.tar.gz -C ./graphcommerce
-            cd ./graphcommerce
-            pm2 restart ecosystem.config.js
-            pm2 save
+            echo $(node -v)
+            mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}
+            rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/*
+            rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/.next
+            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}
