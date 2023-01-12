@@ -14,7 +14,7 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
 
 ### Prerequisites
 
-- Node 14 must be installed
+- Node 16 must be installed
 - PM2 must be installed and available as `pm2` in your `PATH`, and should be started across reboots
 - Project must have an `ecosystem.config.js` file in the root folder (see https://pm2.keymetrics.io/docs/usage/application-declaration/)
   -  This file tells PM2 how to run your application. See _Usage_ for an example. 
