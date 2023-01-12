@@ -51,6 +51,9 @@ jobs:
       environment: test # Refers to the GitHub environment to inherit secrets from
       frontUrl: 'https://shop.example.com'
       magentoEndpoint: 'https://magento.example.com/graphql'
+      additionalEnv: |
+        VERCEL_ENV=\"production\"
+        DISALLOW_ROBOTS=1
   activate-artifact:
     uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-artifact.yml@main
     needs: build-artifact
