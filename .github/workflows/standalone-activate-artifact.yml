@@ -14,6 +14,10 @@ on:
       serverUser:
         type: string
         required: true
+      prefixPm2:
+        description: In case PM2 can not be found in the default PATH, the absolute path to PM2 can be given here (must include trailing slash)
+        type: string
+        required: false
 
 jobs:
   activate-artifact:
@@ -53,5 +57,5 @@ jobs:
             rm -rf ./graphcommerce/.next
             tar xzf ./artifacts/${GITHUB_SHA}.tar.gz -C ./graphcommerce
             cd ./graphcommerce
-            pm2 restart ecosystem.config.js
-            pm2 save
+            ${{ inputs.prefixPm2 }}pm2 restart ecosystem.config.js
+            ${{ inputs.prefixPm2 }}pm2 save
