@@ -63,6 +63,9 @@ jobs:
       serverHost: 'server.example.com'
       serverUser: 'user'
       serverPort: 22
+      # On environments such as hypernode, where we can't set a custom PATH for non-login shells, you must provide the
+      # full path to PM2:
+      # prefixPm2: '/data/web/.npm/bin/'
 ```
 
 You must set up an GitHub environment (you can find this under repository settings) for each environment you deploy to,
