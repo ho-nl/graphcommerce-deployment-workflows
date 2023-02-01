@@ -14,8 +14,8 @@ on:
       serverUser:
         type: string
         required: true
-      prefixPm2:
-        description: In case PM2 can not be found in the default PATH, the absolute path to PM2 can be given here (must include trailing slash)
+      additionalPath:
+        description: Additional paths that should be prefixed to PATH
         type: string
         required: false
 
@@ -52,10 +52,12 @@ jobs:
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
+            export PATH="${{ inputs.additionalPath }}:$PATH"
+            echo Using path: $PATH
             mkdir -p ./graphcommerce
             rm -rf ./graphcommerce/*
             rm -rf ./graphcommerce/.next
             tar xzf ./artifacts/${GITHUB_SHA}.tar.gz -C ./graphcommerce
             cd ./graphcommerce
-            ${{ inputs.prefixPm2 }}pm2 restart ecosystem.config.js
-            ${{ inputs.prefixPm2 }}pm2 save
+            pm2 restart ecosystem.config.js
+            pm2 save
