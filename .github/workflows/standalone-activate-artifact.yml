@@ -18,6 +18,7 @@ on:
         description: Additional paths that should be prefixed to PATH
         type: string
         required: false
+        default: '/data/web/.npm/bin/'
 
 jobs:
   activate-artifact:

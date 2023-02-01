@@ -64,8 +64,8 @@ jobs:
       serverUser: 'user'
       serverPort: 22
       # On environments such as hypernode, where we can't set a custom PATH for non-login shells, and need to customize
-      # it to be able to run things like PM2
-      additionalPath: '/data/web/.npm/bin/'
+      # it to be able to run things like PM2. Below is the default value, so npm-installed executables can be invoked.
+      # additionalPath: '/data/web/.npm/bin/'
 ```
 
 You must set up an GitHub environment (you can find this under repository settings) for each environment you deploy to,
