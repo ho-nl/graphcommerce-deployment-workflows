@@ -32,7 +32,7 @@ pm2 list
 
 ## Proxy setup
 
-Ensure requests are proxied to the node application by creating a new file at  `/data/web/nginx/<you_node_name>.hypernode.io`:
+Ensure requests are proxied to the node application by creating a new file at  `/data/web/nginx/<you_node_name>.hypernode.io/server.proxypass.conf`:
 ```nginx
 location  ~* ^\/.* {
     proxy_pass  http://127.0.0.1:3000;
