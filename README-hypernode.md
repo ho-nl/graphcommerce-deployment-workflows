@@ -2,7 +2,9 @@
 
 ## Installing and configuring PM2
 
-Installing PM2 as global executable
+Our aim is to have PM2 always running, and automatically restarting and restoring application state after a reboot.
+
+Installing PM2 as global executable:
 ```sh
 npm config set prefix ~/.npm
 npm install --quiet -g pm2
