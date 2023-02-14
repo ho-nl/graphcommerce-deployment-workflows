@@ -37,7 +37,7 @@ jobs:
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
-            cd ./graphcommerce1
+            cd ./graphcommerce1/current
             cp ecosystem.config.js ..
             cd ..
             pm2 restart ecosystem.config.js
