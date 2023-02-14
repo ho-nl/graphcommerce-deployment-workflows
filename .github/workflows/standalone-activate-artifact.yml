@@ -62,4 +62,4 @@ jobs:
             rm -rf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz
             ln -s releases/$release_folder ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current
             mv ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ./graphcommerce${{ inputs.applicationSuffixId }}/
-            ls -d -x1 "$PWD/graphcommerce${{ inputs.applicationSuffixId }}/releases/" | head -n -3 | xargs -d '\n' rm -rf
+            ls -dp -x1 "$PWD/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -3 | xargs -d '\n' rm -rf
