@@ -4,7 +4,7 @@ on:
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
-        required: false
+        required: true
       environment:
         description: The github environment to inherit secrets from
         type: string
