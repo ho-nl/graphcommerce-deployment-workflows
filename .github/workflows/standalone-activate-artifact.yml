@@ -56,7 +56,10 @@ jobs:
           script_stop: true
           script: |
             echo $(node -v)
-            mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}
-            rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/*
-            rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/.next
-            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}
+            release_folder=$(date +%Y%m%d%H%I%S)
+            mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}//releases/$release_folder
+            rm -rf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz
+            ln -s ./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current
+            mv ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ./graphcommerce${{ inputs.applicationSuffixId }}/
+            ls -x1 ./graphcommerce${{ inputs.applicationSuffixId }}/releases/ | head -n -3 | xargs -d '\n' rm -rf
