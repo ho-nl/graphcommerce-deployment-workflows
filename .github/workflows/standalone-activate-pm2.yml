@@ -1,6 +1,10 @@
 on:
   workflow_call:
     inputs:
+      deployTo:
+        description: Directory where to deploy to (if empty that home dir is used)
+        type: string
+        required: false
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
@@ -37,6 +41,6 @@ jobs:
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
-            cp ./graphcommerce${{ inputs.applicationSuffixId }}/current/ecosystem.config.js .
+            cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/ecosystem.config.js .
             pm2 restart ecosystem.config.js
             pm2 save

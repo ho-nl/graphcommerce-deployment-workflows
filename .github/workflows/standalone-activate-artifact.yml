@@ -1,6 +1,10 @@
 on:
   workflow_call:
     inputs:
+      deployTo:
+        description: Directory where to deploy to (if empty that home dir is used)
+        type: string
+        required: false
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
@@ -37,7 +41,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
           source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
-          target: ./artifacts
+          target: ${{ inputs.deployTo }}./artifacts
       - name: Node version
         run: echo "$(node -v)"
         shell: bash
@@ -51,15 +55,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
           source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
-          target: ./artifacts
+          target: ${{ inputs.deployTo }}./artifacts
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
             echo $(node -v)
             release_folder=$(date +%Y%m%d%H%I%S)
-            mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
-            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
-            rm -rf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz
-            ln -s releases/$release_folder ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current
-            mv ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ./graphcommerce${{ inputs.applicationSuffixId }}/
-            ls -dp -x1 "$PWD/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -3 | xargs -d '\n' rm -rf
+            mkdir -p ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            tar xzf ${{ inputs.deployTo }}./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            rm -rf ${{ inputs.deployTo }}./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz
+            ln -s releases/$release_folder ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/current
+            mv ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/
+            ls -dp -x1 "$PWD/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -3 | xargs -d '\n' rm -rf || true
