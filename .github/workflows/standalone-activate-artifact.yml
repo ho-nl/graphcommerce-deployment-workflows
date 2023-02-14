@@ -4,7 +4,7 @@ on:
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
-        required: false
+        required: true
       environment:
         description: The github environment to inherit secrets from
         type: string
@@ -26,7 +26,7 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: deployment-artifact
       - name: Upload to server
@@ -56,7 +56,10 @@ jobs:
           script_stop: true
           script: |
             echo $(node -v)
-            mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}
-            rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/*
-            rm -rf ./graphcommerce${{ inputs.applicationSuffixId }}/.next
-            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}
+            release_folder=$(date +%Y%m%d%H%I%S)
+            mkdir -p ./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            tar xzf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            rm -rf ./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz
+            ln -s releases/$release_folder ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current
+            mv ./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ./graphcommerce${{ inputs.applicationSuffixId }}/
+            ls -dp -x1 "$PWD/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -3 | xargs -d '\n' rm -rf
