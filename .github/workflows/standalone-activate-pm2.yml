@@ -42,5 +42,6 @@ jobs:
           script_stop: true
           script: |
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/ecosystem.config.js ${{ inputs.deployTo }}.
+            cd ${{ inputs.deployTo }}
             pm2 restart ecosystem.config.js
             pm2 save
