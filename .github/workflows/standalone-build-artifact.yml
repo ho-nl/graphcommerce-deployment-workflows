@@ -5,6 +5,11 @@ on:
         description: Directory where to deploy to (if empty that home dir is used)
         type: string
         required: false
+      ecosystemFile:
+        description: Override for which file to use for ecosystem.config.js
+        type: string
+        required: false
+        default: 'ecosystem.config.js'
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
@@ -72,6 +77,7 @@ jobs:
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
+          cp ${{ inputs.ecosystemFile }} .next/standalone/
           cp -R .next/static .next/standalone/.next/static
           tar -czf "${GITHUB_SHA}_${{ inputs.applicationSuffixId }}".tar.gz -C .next/standalone .
       - name: Node version
