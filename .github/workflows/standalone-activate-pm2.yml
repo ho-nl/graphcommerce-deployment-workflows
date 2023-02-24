@@ -49,4 +49,5 @@ jobs:
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
             cd ${{ inputs.deployTo }}
             pm2 restart ecosystem.config.js
+            pm2 update
             pm2 save
