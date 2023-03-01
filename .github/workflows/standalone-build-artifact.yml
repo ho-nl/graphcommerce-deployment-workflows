@@ -18,22 +18,6 @@ on:
         description: The github environment to inherit secrets from
         type: string
         required: true
-      frontUrl:
-        description: The URL of the frontend application (including https:// prefix)
-        type: string
-        required: true
-      magentoEndpoint:
-        description: The URL of the Magento GraphQL API (including https:// prefix)
-        type: string
-        required: true
-      googleAnalyticsId:
-        description: Google Analytics ID
-        type: string
-        required: false
-      googleTagManagerId:
-        description: Google Tag Manager ID
-        type: string
-        required: false
       additionalEnv:
         description: Additional environment variables to append to the .env file (be sure to escape double-quotes)
         type: string
@@ -64,13 +48,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           touch .env
-          echo "NEXT_PUBLIC_GRAPHQL_ENDPOINT=\"${{ inputs.frontUrl }}/api/graphql\"" >> .env
-          echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
-          echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
-          echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
-          [[ ! -z "${{ inputs.googleTagManagerId }}" ]] && echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
           echo "${{ inputs.additionalEnv }}" >> .env
-          [ $(curl -L -s -o /dev/null -w "%{http_code}" ${{ inputs.frontUrl }}/api/graphql) != "200"  ] && sed -i '/VERCEL_ENV/d' .env && sed -i '/VERCEL=/d' .env # if api is not available then don't do a production build
           echo $(node -v)
           STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
