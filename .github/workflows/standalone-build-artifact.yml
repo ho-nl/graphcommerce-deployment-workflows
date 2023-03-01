@@ -37,8 +37,8 @@ jobs:
           touch .env
           echo -e "\n# Force newline, in case .env.example has no trailing newline" >> .env
           echo "${{ inputs.additionalEnv }}" >> .env
-          sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
           NEXT_PRIVATE_STANDALONE=1 yarn build
+          sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, hostname, (err) => {' .next/standalone/server.js
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
           cp -R .next/static .next/standalone/.next/static
