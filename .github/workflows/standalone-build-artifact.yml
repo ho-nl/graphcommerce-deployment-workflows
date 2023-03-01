@@ -63,8 +63,7 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: |
-          cp .env.example .env
-          echo "" >> .env
+          touch .env
           echo "NEXT_PUBLIC_GRAPHQL_ENDPOINT=\"${{ inputs.frontUrl }}/api/graphql\"" >> .env
           echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
           echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
