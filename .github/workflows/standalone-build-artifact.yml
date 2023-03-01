@@ -5,22 +5,6 @@ on:
         description: The github environment to inherit secrets from
         type: string
         required: true
-      frontUrl:
-        description: The URL of the frontend application (including https:// prefix)
-        type: string
-        required: true
-      magentoEndpoint:
-        description: The URL of the Magento GraphQL API (including https:// prefix)
-        type: string
-        required: true
-      googleAnalyticsId:
-        description: Google Analytics ID
-        type: string
-        required: false
-      googleTagManagerId:
-        description: Google Tag Manager ID
-        type: string
-        required: false
       additionalEnv:
         description: Additional environment variables to append to the .env file (be sure to escape double-quotes)
         type: string
@@ -52,11 +36,6 @@ jobs:
         run: |
           touch .env
           echo -e "\n# Force newline, in case .env.example has no trailing newline" >> .env
-          echo "NEXT_PUBLIC_GRAPHQL_ENDPOINT=\"${{ inputs.frontUrl }}/api/graphql\"" >> .env
-          echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
-          echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
-          echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
-          echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
           echo "${{ inputs.additionalEnv }}" >> .env
           STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
