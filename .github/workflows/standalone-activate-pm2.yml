@@ -31,7 +31,7 @@ on:
 jobs:
   activate-applications:
     name: Activate applications
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: ${{ inputs.environment }}
     steps:
       - name: Activate
