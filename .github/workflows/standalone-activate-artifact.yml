@@ -70,4 +70,4 @@ jobs:
             rm -rf ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder/.next/cache/images
             ln -s ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/shared/.next/cache/images ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder/.next/cache/images
             mv ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/
-            ls -dp -x1 "${{ inputs.deployTo }}/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -3 | xargs -d '\n' rm -rf || true
+            ls -dp -x1 "${{ inputs.deployTo }}/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -2 | xargs -d '\n' rm -rf || true
