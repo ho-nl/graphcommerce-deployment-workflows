@@ -53,8 +53,8 @@ jobs:
       ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecoysystem file
       environment: test # Refers to the GitHub environment to inherit secrets from
       additionalEnv: |
-        GC_MAGENTO_ENDPOINT="https://your-site.com/graphql"
-        GC_MAGENTO_REST_ENDPOINT="https://your-site.com/rest"
+        GC_MAGENTO_ENDPOINT='https://your-site.com/graphql'
+        GC_MAGENTO_REST_ENDPOINT='https://your-site.com/rest'
         GC_STOREFRONT_0_MAGENTO_STORE_CODE='your_store_code'
         GC_ALLOW_ROBOTS=1
         GC_LIMIT_SSG="0"
