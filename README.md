@@ -14,7 +14,7 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
 
 ### Prerequisites
 
-- Node 14 must be installed
+- Node 16 must be installed
 - PM2 must be installed and available as `pm2` in your `PATH`, and should be started across reboots
 - Project must have an `ecosystem.config.js` file in the root folder (see https://pm2.keymetrics.io/docs/usage/application-declaration/)
   -  This file tells PM2 how to run your application. See _Usage_ for an example. 
@@ -48,10 +48,14 @@ jobs:
     # Needed to inherit GitHub secrets (i.e. SSH_KEY; see below)
     secrets: inherit
     with:
+      deployTo: '/path/to/'
+      applicationSuffixId: b2c_staging
+      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecoysystem file
       environment: test # Refers to the GitHub environment to inherit secrets from
       additionalEnv: |
-        VERCEL_ENV=\"production\"
-        DISALLOW_ROBOTS=1
+        GC_MAGENTO_ENDPOINT="https://your-site.com/graphql"
+        GC_MAGENTO_REST_ENDPOINT="https://your-site.com/rest"
+        GC_STOREFRONT_0_MAGENTO_STORE_CODE='your_store_code'
         GC_ALLOW_ROBOTS=1
         GC_LIMIT_SSG="0"
   activate-artifact:
@@ -59,6 +63,8 @@ jobs:
     needs: build-artifact
     secrets: inherit
     with:
+      deployTo: '/path/to/'
+      applicationSuffixId: b2c_staging
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
@@ -68,6 +74,9 @@ jobs:
     needs: [activate-artifact-1, activate-artifact-2]
     secrets: inherit
     with:
+      deployTo: '/path/to/'
+      applicationSuffixId: b2c_staging
+      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecoysystem file
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
@@ -95,9 +104,6 @@ module.exports = {
 ```
 
 ## TODOs
-- Only tested on a single platform so this is still somewhat beta
 - Investigate if we can convert this into a custom GitHub action
-- Keep old artifacts around and allow rolling back deployments
-- Make switching to new artifact safer / atomic
 - Some hardcoded things may need to be made configurable
 - Replace VERCEL env variables with more self-explanatory and fine-grained variables (requires changes in GraphCommerce)
