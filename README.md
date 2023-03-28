@@ -106,4 +106,3 @@ module.exports = {
 ## TODOs
 - Investigate if we can convert this into a custom GitHub action
 - Some hardcoded things may need to be made configurable
-- Replace VERCEL env variables with more self-explanatory and fine-grained variables (requires changes in GraphCommerce)
