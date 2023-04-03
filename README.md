@@ -95,12 +95,18 @@ module.exports = {
     apps: [
         {
             name: "graphcommerce",
-            script: "./server.js",
+            script: "./deploy_to/current/server.js",
             exec_mode: "cluster",
             instances: 20
         }
     ]
 }
+```
+You can add a port number optionally:
+```
+            env: {
+                "PORT": 3000
+            }
 ```
 
 ## TODOs
