@@ -1,6 +1,19 @@
 on:
   workflow_call:
     inputs:
+      deployTo:
+        description: Directory where to deploy to (if empty that home dir is used)
+        type: string
+        required: false
+      ecosystemFile:
+        description: Override for which file to use for ecosystem.config.js
+        type: string
+        required: false
+        default: 'ecosystem.config.js'
+      applicationSuffixId:
+        description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
+        type: string
+        required: true
       environment:
         description: The github environment to inherit secrets from
         type: string
@@ -34,12 +47,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'yarn'
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}
@@ -56,16 +69,22 @@ jobs:
           echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
           echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
           echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
-          echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
+          [[ ! -z "${{ inputs.googleTagManagerId }}" ]] && echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
           echo "${{ inputs.additionalEnv }}" >> .env
+          [ $(curl -L -s -o /dev/null -w "%{http_code}" ${{ inputs.frontUrl }}/api/graphql) != "200"  ] && sed -i '/VERCEL_ENV/d' .env && sed -i '/VERCEL=/d' .env # if api is not available then don't do a production build
+          echo $(node -v)
           STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
+          cp ${{ inputs.ecosystemFile }} .next/standalone/
           cp -R .next/static .next/standalone/.next/static
-          tar -czf "${GITHUB_SHA}".tar.gz -C .next/standalone .
+          tar -czf "${GITHUB_SHA}_${{ inputs.applicationSuffixId }}".tar.gz -C .next/standalone .
+      - name: Node version
+        run: echo "$(node -v)"
+        shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: deployment-artifact
-          path: ${{ github.sha }}.tar.gz
+          path: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz

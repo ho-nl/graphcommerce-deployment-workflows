@@ -1,0 +1,58 @@
+on:
+  workflow_call:
+    inputs:
+      deployTo:
+        description: Directory where to deploy to (if empty that home dir is used)
+        type: string
+        required: false
+      ecosystemFile:
+        description: Override for which file to use for ecosystem.config.js
+        type: string
+        required: false
+        default: 'ecosystem.config.js'
+      applicationSuffixId:
+        description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
+        type: string
+        required: true
+      environment:
+        description: The github environment to inherit secrets from
+        type: string
+        required: true
+      serverHost:
+        type: string
+        required: true
+      serverPort:
+        type: string
+        required: true
+      serverUser:
+        type: string
+        required: true
+
+jobs:
+  activate-applications:
+    name: Activate applications
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Activate
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        with:
+          host: ${{ inputs.serverHost }}
+          username: ${{ inputs.serverUser }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ inputs.serverPort }}
+          envs: GITHUB_SHA,DOMAIN
+          script_stop: true
+          script: |
+            cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
+            cd ${{ inputs.deployTo }}
+            pm2 restart ecosystem.config.js
+            # need to scale up/down if needed. Will execute for example: pm2 scale graphcommerceb2b 10
+            $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)' 2>&1 >> /dev/null)
+            pm2 update
+            # get a list of applications that are running and that are in the ecosystem.config.js. Find the diff and them remove the old applications.
+            export toDelete=$(comm -13 <(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | (.name|tostring)' | sort) <(pm2 list | sed -e '1,3d' | sed -e '$ d' | awk  '{print $4}' | sort | uniq))
+            if [[ "$toDelete" ]] ; then pm2 delete $toDelete 2>&1 >> /dev/null; fi
+            pm2 save

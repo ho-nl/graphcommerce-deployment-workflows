@@ -1,6 +1,14 @@
 on:
   workflow_call:
     inputs:
+      deployTo:
+        description: Directory where to deploy to (if empty that home dir is used)
+        type: string
+        required: false
+      applicationSuffixId:
+        description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
+        type: string
+        required: true
       environment:
         description: The github environment to inherit secrets from
         type: string
@@ -27,7 +35,7 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: deployment-artifact
       - name: Upload to server
@@ -37,8 +45,11 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}.tar.gz
-          target: ./artifacts
+          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
+          target: ${{ inputs.deployTo }}./artifacts
+      - name: Node version
+        run: echo "$(node -v)"
+        shell: bash
       - name: Activate
         uses: appleboy/ssh-action@master
         env:
@@ -48,17 +59,21 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}.tar.gz
-          target: ./artifacts
+          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
+          target: ${{ inputs.deployTo }}./artifacts
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
+            echo $(node -v)
             export PATH="${{ inputs.additionalPath }}:$PATH"
-            echo Using path: $PATH
-            mkdir -p ./graphcommerce
-            rm -rf ./graphcommerce/*
-            rm -rf ./graphcommerce/.next
-            tar xzf ./artifacts/${GITHUB_SHA}.tar.gz -C ./graphcommerce
-            cd ./graphcommerce
-            pm2 restart ecosystem.config.js
-            pm2 save
+            release_folder=$(date +%Y%m%d%H%M%S)
+            mkdir -p ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            mkdir -p ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/shared/.next/cache/images
+            mkdir -p ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder/.next/cache/images
+            tar xzf ${{ inputs.deployTo }}./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz -C ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
+            rm -rf ${{ inputs.deployTo }}./artifacts/${GITHUB_SHA}_${{ inputs.applicationSuffixId }}.tar.gz
+            ln -s ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/current
+            rm -rf ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder/.next/cache/images
+            ln -s ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/shared/.next/cache/images ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder/.next/cache/images
+            mv ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/current ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/
+            ls -dp -x1 "${{ inputs.deployTo }}/graphcommerce${{ inputs.applicationSuffixId }}/releases/"* | egrep /$ | head -n -2 | xargs -d '\n' rm -rf || true
