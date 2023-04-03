@@ -94,7 +94,7 @@ An example `ecosystem.config.js` that should work out of the box (you may want t
 module.exports = {
     apps: [
         {
-            name: "b2c_staging",
+            name: "graphcommerce{applicationSuffixId}",
             script: "./graphcommerce{applicationSuffixId}/current/server.js",
             exec_mode: "cluster",
             instances: 20
