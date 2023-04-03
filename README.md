@@ -95,13 +95,15 @@ module.exports = {
     apps: [
         {
             name: "b2c_staging",
-            script: "./deploy_to/current/server.js",
+            script: "./graphcommerce{applicationSuffixId}/current/server.js",
             exec_mode: "cluster",
             instances: 20
         }
     ]
 }
 ```
+Replace `{applicationSuffixId}` with your applicationSuffixId
+
 You can add a port number optionally:
 ```
             env: {
