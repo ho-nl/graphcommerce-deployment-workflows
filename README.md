@@ -50,7 +50,7 @@ jobs:
     with:
       deployTo: '/path/to/'
       applicationSuffixId: b2c_staging
-      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecoysystem file
+      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test # Refers to the GitHub environment to inherit secrets from
       additionalEnv: |
         GC_MAGENTO_ENDPOINT='https://your-site.com/graphql'
@@ -76,7 +76,7 @@ jobs:
     with:
       deployTo: '/path/to/'
       applicationSuffixId: b2c_staging
-      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecoysystem file
+      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
