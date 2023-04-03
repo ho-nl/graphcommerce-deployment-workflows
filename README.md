@@ -14,7 +14,7 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
 
 ### Prerequisites
 
-- Node 14 must be installed
+- Node 16 must be installed
 - PM2 must be installed and available as `pm2` in your `PATH`, and should be started across reboots
 - Project must have an `ecosystem.config.js` file in the root folder (see https://pm2.keymetrics.io/docs/usage/application-declaration/)
   -  This file tells PM2 how to run your application. See _Usage_ for an example. 
@@ -51,6 +51,9 @@ jobs:
       environment: test # Refers to the GitHub environment to inherit secrets from
       frontUrl: 'https://shop.example.com'
       magentoEndpoint: 'https://magento.example.com/graphql'
+      additionalEnv: |
+        VERCEL_ENV=\"production\"
+        DISALLOW_ROBOTS=1
   activate-artifact:
     uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-artifact.yml@main
     needs: build-artifact
@@ -60,6 +63,9 @@ jobs:
       serverHost: 'server.example.com'
       serverUser: 'user'
       serverPort: 22
+      # On environments such as hypernode, where we can't set a custom PATH for non-login shells, and need to customize
+      # it to be able to run things like PM2. Below is the default value, so npm-installed executables can be invoked.
+      # additionalPath: '/data/web/.npm/bin/'
 ```
 
 You must set up an GitHub environment (you can find this under repository settings) for each environment you deploy to,

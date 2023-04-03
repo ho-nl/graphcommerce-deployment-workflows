@@ -22,6 +22,11 @@ on:
       serverUser:
         type: string
         required: true
+      additionalPath:
+        description: Additional paths that should be prefixed to PATH
+        type: string
+        required: false
+        default: '/data/web/.npm/bin/'
 
 jobs:
   activate-artifact:
@@ -60,6 +65,7 @@ jobs:
           script_stop: true
           script: |
             echo $(node -v)
+            export PATH="${{ inputs.additionalPath }}:$PATH"
             release_folder=$(date +%Y%m%d%H%M%S)
             mkdir -p ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/releases/$release_folder
             mkdir -p ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/shared/.next/cache/images

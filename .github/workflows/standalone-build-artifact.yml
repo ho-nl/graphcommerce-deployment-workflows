@@ -64,7 +64,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           cp .env.example .env
-          echo "" >> .env
+          echo -e "\n# Force newline, in case .env.example has no trailing newline" >> .env
           echo "NEXT_PUBLIC_GRAPHQL_ENDPOINT=\"${{ inputs.frontUrl }}/api/graphql\"" >> .env
           echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
           echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
