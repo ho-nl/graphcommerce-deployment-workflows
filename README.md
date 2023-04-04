@@ -88,10 +88,12 @@ module.exports = {
 }
 ```
 
+### Caveats
+
+- PM2 process management happens by the `apps.name` value given in the `ecosystem.config.js`. If you change this after
+  having previously deployed the application, you must manually remove the old application using `pm2 delete
+  <old-application-name>`
+
+
 ## TODOs
-- Only tested on a single platform so this is still somewhat beta
 - Investigate if we can convert this into a custom GitHub action
-- Keep old artifacts around and allow rolling back deployments
-- Make switching to new artifact safer / atomic
-- Some hardcoded things may need to be made configurable
-- Replace VERCEL env variables with more self-explanatory and fine-grained variables (requires changes in GraphCommerce)
