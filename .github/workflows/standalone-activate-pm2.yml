@@ -27,6 +27,11 @@ on:
       serverUser:
         type: string
         required: true
+      additionalPath:
+        description: Additional paths that should be prefixed to PATH
+        type: string
+        required: false
+        default: '/data/web/.npm/bin/'
 
 jobs:
   activate-applications:
@@ -46,6 +51,7 @@ jobs:
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
+            export PATH="${{ inputs.additionalPath }}:$PATH"
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
             cd ${{ inputs.deployTo }}
             pm2 restart ecosystem.config.js

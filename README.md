@@ -48,6 +48,7 @@ jobs:
     # Needed to inherit GitHub secrets (i.e. SSH_KEY; see below)
     secrets: inherit
     with:
+      applicationSuffixId: _main
       environment: test # Refers to the GitHub environment to inherit secrets from
       frontUrl: 'https://shop.example.com'
       magentoEndpoint: 'https://magento.example.com/graphql'
@@ -59,6 +60,19 @@ jobs:
     needs: build-artifact
     secrets: inherit
     with:
+      deployTo: '/data/web/graphcommerce-deploy/'
+      applicationSuffixId: _main
+      environment: test
+      serverHost: 'server.example.com'
+      serverUser: 'user'
+      serverPort: 22
+  activate-pm2:
+    uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-pm2.yml@main
+    needs: activate-artifact
+    secrets: inherit
+    with:
+      deployTo: '/data/web/graphcommerce-deploy/'
+      applicationSuffixId: _main
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
@@ -79,8 +93,8 @@ An example `ecosystem.config.js` that should work out of the box (you may want t
 module.exports = {
     apps: [
         {
-            name: "graphcommerce",
-            script: "./server.js",
+            name: "graphcommerce_main",
+            script: "./graphcommerce_main/server.js",
             exec_mode: "cluster",
             instances: 20
         }
@@ -96,4 +110,6 @@ module.exports = {
 
 
 ## TODOs
+- Document multiple-application setup
+- Allow setting `applicationSuffixId` to empty, and make it the default value, to keep single-application setups elegant
 - Investigate if we can convert this into a custom GitHub action
