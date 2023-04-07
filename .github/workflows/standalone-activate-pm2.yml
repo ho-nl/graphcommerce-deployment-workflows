@@ -65,7 +65,7 @@ jobs:
             for i in "${toScale[@]}"
             do
               echo "$i"
-              $($i 2>&1 >> /dev/null)
+              $($i) 2>&1 >> /dev/null;
             done
             # Force reload of in-memory PM2 with local version of PM2, this is needed when deployment path and other settings change
             pm2 update
