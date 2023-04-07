@@ -56,7 +56,6 @@ jobs:
             cd ${{ inputs.deployTo }}
             export NODE_OPTIONS=--max_old_space_size=2048
             pm2 reload ecosystem.config.js
-
             # need to scale up/down if needed. Will execute for example: pm2 scale graphcommerceb2b 10
             export toScale=$(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)')
             SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
@@ -68,7 +67,6 @@ jobs:
               echo "$i"
               $($i) >> /dev/null;
             done
-
             # Force reload of in-memory PM2 with local version of PM2, this is needed when deployment path and other settings change
             pm2 update
             # get a list of applications that are running and that are in the ecosystem.config.js. Find the diff and then remove the old graphcommerce applications.
@@ -84,6 +82,5 @@ jobs:
                 pm2 delete $i 2>&1 >> /dev/null;
               done
             fi
-
             # Save current process state so processes get restored across reboots
             pm2 save
