@@ -49,7 +49,7 @@ jobs:
     secrets: inherit
     with:
       deployTo: '/path/to/'
-      applicationSuffixId: b2c_staging
+      applicationSuffixId: _main
       ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test # Refers to the GitHub environment to inherit secrets from
       additionalEnv: |
@@ -64,7 +64,7 @@ jobs:
     secrets: inherit
     with:
       deployTo: '/path/to/'
-      applicationSuffixId: b2c_staging
+      applicationSuffixId: _main
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
@@ -75,12 +75,26 @@ jobs:
     secrets: inherit
     with:
       deployTo: '/path/to/'
-      applicationSuffixId: b2c_staging
+      applicationSuffixId: _main
       ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
       serverPort: 22
+  activate-pm2:
+    uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-pm2.yml@main
+    needs: activate-artifact
+    secrets: inherit
+    with:
+      deployTo: '/data/web/graphcommerce-deploy/'
+      applicationSuffixId: _main
+      environment: test
+      serverHost: 'server.example.com'
+      serverUser: 'user'
+      serverPort: 22
+      # On environments such as hypernode, where we can't set a custom PATH for non-login shells, and need to customize
+      # it to be able to run things like PM2. Below is the default value, so npm-installed executables can be invoked.
+      # additionalPath: '/data/web/.npm/bin/'
 ```
 
 You must set up an GitHub environment (you can find this under repository settings) for each environment you deploy to,
@@ -111,6 +125,14 @@ You can add a port number optionally:
             }
 ```
 
+### Caveats
+
+- PM2 process management happens by the `apps.name` value given in the `ecosystem.config.js`. If you change this after
+  having previously deployed the application, you must manually remove the old application using `pm2 delete
+  <old-application-name>`
+
+
 ## TODOs
+- Document multiple-application setup
+- Allow setting `applicationSuffixId` to empty, and make it the default value, to keep single-application setups elegant
 - Investigate if we can convert this into a custom GitHub action
-- Some hardcoded things may need to be made configurable
