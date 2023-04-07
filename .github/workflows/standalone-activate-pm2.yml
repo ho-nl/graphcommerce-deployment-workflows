@@ -27,6 +27,11 @@ on:
       serverUser:
         type: string
         required: true
+      additionalPath:
+        description: Additional paths that should be prefixed to PATH
+        type: string
+        required: false
+        default: '/data/web/.npm/bin/'
 
 jobs:
   activate-applications:
@@ -46,8 +51,16 @@ jobs:
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
+            export PATH="${{ inputs.additionalPath }}:$PATH"
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
             cd ${{ inputs.deployTo }}
             pm2 restart ecosystem.config.js
+            # need to scale up/down if needed. Will execute for example: pm2 scale graphcommerceb2b 10
+            $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)' 2>&1 >> /dev/null)
+            # Force reload of PM2, this is needed when deployment path and other settings change
             pm2 update
+            # get a list of applications that are running and that are in the ecosystem.config.js. Find the diff and then remove the old graphcommerce applications.
+            export toDelete=$(comm -13 <(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | (.name|tostring)' | sort | grep '^graphcommerce') <(pm2 list | sed -e '1,3d' | sed -e '$ d' | awk  '{print $4}' | sort | uniq | grep '^graphcommerce'))
+            if [[ "$toDelete" ]] ; then pm2 delete $toDelete 2>&1 >> /dev/null; fi
+            # Save current process state so processes get restored across reboots
             pm2 save
