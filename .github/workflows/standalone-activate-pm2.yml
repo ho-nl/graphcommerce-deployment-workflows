@@ -58,7 +58,7 @@ jobs:
             pm2 reload ecosystem.config.js
             # need to scale up/down if needed. Will execute for example: pm2 scale graphcommerceb2b 10
             $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)' 2>&1 >> /dev/null)
-            # Force reload of PM2, this is needed when deployment path and other settings change
+            # Force reload of in-memory PM2 with local version of PM2, this is needed when deployment path and other settings change
             pm2 update
             # get a list of applications that are running and that are in the ecosystem.config.js. Find the diff and then remove the old graphcommerce applications.
             export toDelete=$(comm -13 <(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | (.name|tostring)' | sort | grep '^graphcommerce') <(pm2 list | sed -e '1,3d' | sed -e '$ d' | awk  '{print $4}' | sort | uniq | grep '^graphcommerce'))
