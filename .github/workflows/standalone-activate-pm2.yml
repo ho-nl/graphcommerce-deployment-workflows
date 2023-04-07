@@ -49,7 +49,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
           envs: GITHUB_SHA,DOMAIN
-          script_stop: true
           script: |
             export PATH="${{ inputs.additionalPath }}:$PATH"
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
