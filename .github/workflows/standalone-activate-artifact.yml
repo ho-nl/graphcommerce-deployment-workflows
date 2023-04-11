@@ -54,8 +54,6 @@ jobs:
           username: ${{ inputs.serverUser }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
-          source: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
-          target: ${{ inputs.deployTo }}./artifacts
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
           script: |
