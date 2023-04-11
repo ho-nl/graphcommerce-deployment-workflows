@@ -49,6 +49,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ inputs.serverPort }}
           envs: GITHUB_SHA,DOMAIN
+          script_stop: true
           script: |
             export PATH="${{ inputs.additionalPath }}:$PATH"
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
@@ -61,11 +62,15 @@ jobs:
             IFS=$'\n'      # Change IFS to newline char
             toScale=($toScale) # split the string into an array by the same name
             IFS=$SAVEIFS   # Restore original IFS
-            for i in "${toScale[@]}"
-            do
-              echo "$i"
-              $($i)
-            done
+            # need to run a for loop in a separate bash script because of bug: https://github.com/appleboy/drone-ssh/issues/175
+            echo 'for i in "${toScale[@]}"' >> github_run.sh
+            echo 'do' >> github_run.sh
+            echo '  echo "$i"' >> github_run.sh
+            echo '  $($i)' >> github_run.sh
+            echo 'done' >> github_run.sh
+            chmod +x github_run.sh
+            ./github_run.sh
+            rm github_run.sh
             # Force reload of in-memory PM2 with local version of PM2, this is needed when deployment path and other settings change
             pm2 update
             # get a list of applications that are running and that are in the ecosystem.config.js. Find the diff and then remove the old graphcommerce applications.
@@ -75,11 +80,15 @@ jobs:
             toDelete=($toDelete) # split the string into an array by the same name
             IFS=$SAVEIFS   # Restore original IFS
             if [[ "$toDelete" ]] ; then
-              for i in "${toDelete[@]}"
-              do
-                echo "pm2 delete $i"
-                pm2 delete $i
-              done
+              # need to run a for loop in a separate bash script because of bug: https://github.com/appleboy/drone-ssh/issues/175
+              echo 'for i in "${toDelete[@]}"' >> github_run.sh
+              echo 'do' >> github_run.sh
+              echo '  echo "pm2 delete $i"' >> github_run.sh
+              echo '  pm2 delete $i' >> github_run.sh
+              echo 'done' >> github_run.sh
+              chmod +x github_run.sh
+              ./github_run.sh
+              rm github_run.sh
             fi
             # Save current process state so processes get restored across reboots
             pm2 save
