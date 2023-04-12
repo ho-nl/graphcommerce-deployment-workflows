@@ -52,6 +52,9 @@ jobs:
           echo $(node -v)
           NEXT_PRIVATE_STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
+          # add http-graceful-shutdown and health check if exists
+          [ -d ./node_modules/http-graceful-shutdown ] && echo "require('http-graceful-shutdown')(server)" >> .next/standalone/server.js
+          [ -d ./node_modules/http-graceful-shutdown ] && echo "require('./.next/server/pages/api/health').then((m) => m.default())" >> .next/standalone/server.js
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
           cp ${{ inputs.ecosystemFile }} .next/standalone/
