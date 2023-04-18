@@ -50,6 +50,7 @@ jobs:
           port: ${{ inputs.serverPort }}
           envs: GITHUB_SHA,DOMAIN
           script_stop: true
+          command_timeout: 30m
           script: |
             export PATH="${{ inputs.additionalPath }}:$PATH"
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
