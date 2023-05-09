@@ -59,6 +59,9 @@ jobs:
             pm2 reload ecosystem.config.js
             # #######################
             # need to scale up/down if needed. Will execute for example: pm2 scale graphcommerceb2b 10
+            if [[ -f "github_run.sh" ]]; then
+              rm github_run.sh
+            fi
             # $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" # This makes it a json from ecosystem.config.js
             # jr is a json process command
             # jq -r '.[] takes all arrays from json
