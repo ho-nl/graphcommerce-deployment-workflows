@@ -74,7 +74,7 @@ jobs:
             echo 'for i in "${toScale[@]}"' >> github_run.sh
             echo 'do' >> github_run.sh
             echo '  echo "$i"' >> github_run.sh
-            echo '  $($i)' >> github_run.sh
+            echo '  $($i) > /dev/null 2>&1' >> github_run.sh
             echo 'done' >> github_run.sh
             chmod +x github_run.sh
             ./github_run.sh
@@ -98,7 +98,7 @@ jobs:
               echo 'for i in "${toDelete[@]}"' >> github_run.sh
               echo 'do' >> github_run.sh
               echo '  echo "pm2 delete $i"' >> github_run.sh
-              echo '  pm2 delete $i' >> github_run.sh
+              echo '  pm2 delete $i > /dev/null 2>&1' >> github_run.sh
               echo 'done' >> github_run.sh
               chmod +x github_run.sh
               ./github_run.sh
