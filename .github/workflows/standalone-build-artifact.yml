@@ -43,12 +43,25 @@ jobs:
           restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}-
       - name: Dependencies
         run: yarn install --frozen-lockfile --immutable
+      - name: Generate environment configuration
+        env:
+          ALL_VARS: ${{ toJSON(vars) }}
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+        run: |
+          touch .env
+
+          # additionalEnv input is the legacy way to override configuration variables
+          echo "${{ inputs.additionalEnv }}" >> .env
+
+          # Read repository variables and secrets that are GraphCommerce specific, and write them to the .env file. We
+          # use the `toJSON` github action expression to fetch all variables in one go, and pipe them through `jq` to
+          # turn them back into a .env compatible format.
+          echo $ALL_VARS    |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | grep GC_ >> .env
+          echo $ALL_SECRETS |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | grep GC_ >> .env
       - name: Build
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: |
-          touch .env
-          echo "${{ inputs.additionalEnv }}" >> .env
           echo $(node -v)
           NEXT_PRIVATE_STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
