@@ -58,6 +58,9 @@ jobs:
           # turn them back into a .env compatible format.
           echo $ALL_VARS    |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | grep GC_ >> .env
           echo $ALL_SECRETS |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | grep GC_ >> .env
+
+          # Don't fail this job due to `grep` having an error exit status if no vars matched.
+          true
       - name: Build
         env:
           GITHUB_SHA: ${{ github.sha }}
