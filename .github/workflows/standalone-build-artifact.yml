@@ -56,11 +56,8 @@ jobs:
           # Read repository variables and secrets that are GraphCommerce specific, and write them to the .env file. We
           # use the `toJSON` github action expression to fetch all variables in one go, and pipe them through `jq` to
           # turn them back into a .env compatible format.
-          echo $ALL_VARS    |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | grep GC_ >> .env
-          echo $ALL_SECRETS |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | grep GC_ >> .env
-
-          # Don't fail this job due to `grep` having an error exit status if no vars matched.
-          true
+          echo $ALL_VARS    |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | { grep GC_ || true; } >> .env
+          echo $ALL_SECRETS |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | { grep GC_ || true; } >> .env
       - name: Build
         env:
           GITHUB_SHA: ${{ github.sha }}
