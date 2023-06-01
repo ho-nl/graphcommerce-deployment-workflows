@@ -48,20 +48,35 @@ jobs:
     # Needed to inherit GitHub secrets (i.e. SSH_KEY; see below)
     secrets: inherit
     with:
+      deployTo: '/path/to/'
       applicationSuffixId: _main
+      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test # Refers to the GitHub environment to inherit secrets from
-      frontUrl: 'https://shop.example.com'
-      magentoEndpoint: 'https://magento.example.com/graphql'
       additionalEnv: |
-        VERCEL_ENV=\"production\"
-        DISALLOW_ROBOTS=1
+        GC_MAGENTO_ENDPOINT='https://your-site.com/graphql'
+        GC_MAGENTO_REST_ENDPOINT='https://your-site.com/rest'
+        GC_STOREFRONT_0_MAGENTO_STORE_CODE='your_store_code'
+        GC_ALLOW_ROBOTS=1
+        GC_LIMIT_SSG="0"
   activate-artifact:
     uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-artifact.yml@main
     needs: build-artifact
     secrets: inherit
     with:
-      deployTo: '/data/web/graphcommerce-deploy/'
+      deployTo: '/path/to/'
       applicationSuffixId: _main
+      environment: test
+      serverHost: 'server.example.com'
+      serverUser: 'user'
+      serverPort: 22
+  activate-pm2:
+    uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-pm2.yml@main
+    needs: [activate-artifact-1, activate-artifact-2]
+    secrets: inherit
+    with:
+      deployTo: '/path/to/'
+      applicationSuffixId: _main
+      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
@@ -93,13 +108,21 @@ An example `ecosystem.config.js` that should work out of the box (you may want t
 module.exports = {
     apps: [
         {
-            name: "graphcommerce_main",
-            script: "./graphcommerce_main/server.js",
+            name: "graphcommerce{applicationSuffixId}",
+            script: "./graphcommerce{applicationSuffixId}/current/server.js",
             exec_mode: "cluster",
             instances: 20
         }
     ]
 }
+```
+Replace `{applicationSuffixId}` with your applicationSuffixId
+
+You can add a port number optionally:
+```
+            env: {
+                "PORT": 3000
+            }
 ```
 
 ### Caveats

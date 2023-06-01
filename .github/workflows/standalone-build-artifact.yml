@@ -18,22 +18,6 @@ on:
         description: The github environment to inherit secrets from
         type: string
         required: true
-      frontUrl:
-        description: The URL of the frontend application (including https:// prefix)
-        type: string
-        required: true
-      magentoEndpoint:
-        description: The URL of the Magento GraphQL API (including https:// prefix)
-        type: string
-        required: true
-      googleAnalyticsId:
-        description: Google Analytics ID
-        type: string
-        required: false
-      googleTagManagerId:
-        description: Google Tag Manager ID
-        type: string
-        required: false
       additionalEnv:
         description: Additional environment variables to append to the .env file (be sure to escape double-quotes)
         type: string
@@ -59,22 +43,32 @@ jobs:
           restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}-
       - name: Dependencies
         run: yarn install --frozen-lockfile --immutable
+      - name: Generate environment configuration
+        env:
+          ALL_VARS: ${{ toJSON(vars) }}
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+        run: |
+          touch .env
+
+          # additionalEnv input is the legacy way to override configuration variables
+          echo "${{ inputs.additionalEnv }}" >> .env
+
+          # Read repository variables and secrets that are GraphCommerce specific, and write them to the .env file. We
+          # use the `toJSON` github action expression to fetch all variables in one go, and pipe them through `jq` to
+          # turn them back into a .env compatible format.
+          echo $ALL_VARS    |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | { grep GC_ || true; } >> .env
+          echo $ALL_SECRETS |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | { grep GC_ || true; } >> .env
       - name: Build
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: |
-          cp .env.example .env
-          echo -e "\n# Force newline, in case .env.example has no trailing newline" >> .env
-          echo "NEXT_PUBLIC_GRAPHQL_ENDPOINT=\"${{ inputs.frontUrl }}/api/graphql\"" >> .env
-          echo "NEXT_PUBLIC_SITE_URL=\"${{ inputs.frontUrl }}\"" >> .env
-          echo "MAGENTO_ENDPOINT=\"${{ inputs.magentoEndpoint }}\"" >> .env
-          echo "NEXT_PUBLIC_GOOGLE_ANALYTICS=\"${{ inputs.googleAnalyticsId }}\"" >> .env
-          [[ ! -z "${{ inputs.googleTagManagerId }}" ]] && echo "NEXT_PUBLIC_GTM_ID=\"${{ inputs.googleTagManagerId }}\"" >> .env
-          echo "${{ inputs.additionalEnv }}" >> .env
-          [ $(curl -L -s -o /dev/null -w "%{http_code}" ${{ inputs.frontUrl }}/api/graphql) != "200"  ] && sed -i '/VERCEL_ENV/d' .env && sed -i '/VERCEL=/d' .env # if api is not available then don't do a production build
           echo $(node -v)
-          STANDALONE=1 yarn build
+          NEXT_PRIVATE_STANDALONE=1 yarn build
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
+          # add http-graceful-shutdown and health check if exists
+          [ -d ./node_modules/http-graceful-shutdown ] && echo "" >> .next/standalone/server.js
+          [ -d ./node_modules/http-graceful-shutdown ] && echo "require('http-graceful-shutdown')(server)" >> .next/standalone/server.js
+          [ -d ./node_modules/http-graceful-shutdown ] && echo "require('./.next/server/pages/api/health').then((m) => m.default())" >> .next/standalone/server.js
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
           cp ${{ inputs.ecosystemFile }} .next/standalone/

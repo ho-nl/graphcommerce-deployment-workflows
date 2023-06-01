@@ -14,6 +14,16 @@ on:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
         required: true
+      scaleApplications:
+        description: Scale applications
+        type: boolean
+        required: false
+        default: false
+      deleteOldApplications:
+        description: Delete old applications
+        type: boolean
+        required: false
+        default: false
       environment:
         description: The github environment to inherit secrets from
         type: string
@@ -55,14 +65,65 @@ jobs:
             export PATH="${{ inputs.additionalPath }}:$PATH"
             cp ${{ inputs.deployTo }}./graphcommerce${{ inputs.applicationSuffixId }}/current/${{ inputs.ecosystemFile }} ${{ inputs.deployTo }}ecosystem.config.js
             cd ${{ inputs.deployTo }}
-            pm2 restart ecosystem.config.js
+            export NODE_OPTIONS=--max_old_space_size=2048
+            pm2 reload ecosystem.config.js
+            # #######################
             # need to scale up/down if needed. Will execute for example: pm2 scale graphcommerceb2b 10
-            $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)' 2>&1 >> /dev/null)
-            # Force reload of PM2, this is needed when deployment path and other settings change
-            pm2 update
+            if [[ -f "github_run.sh" ]]; then
+              rm github_run.sh
+            fi
+            # $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" # This makes it a json from ecosystem.config.js
+            # jr is a json process command
+            # jq -r '.[] takes all arrays from json
+            # {name, instances} # take all indices called “name” and “instances”
+            # (.name|tostring) # print “name”
+            # (.instances|tostring)') # print “instances”
+            if [[ ${{ inputs.scaleApplications }} ]]; then
+              echo $'export toScale=$(node -pe \'JSON.stringify(eval(process.argv[1]).apps)\' "$(cat ecosystem.config.js)" | jq -r \'.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)\')' >> github_run.sh
+              echo $'SAVEIFS=$IFS' >> github_run.sh # Save current IFS (Internal Field Separator)
+              echo "IFS=$'\n'" >> github_run.sh # Change IFS to newline char
+              echo $'toScale=($toScale)' >> github_run.sh # split the string into an array by the same name
+              echo $'IFS=$SAVEIFS' >> github_run.sh # Restore original IFS
+              # need to run a for loop in a separate bash script because of bug: https://github.com/appleboy/drone-ssh/issues/175
+              echo 'for i in "${toScale[@]}"' >> github_run.sh
+              echo 'do' >> github_run.sh
+              echo '  echo "$i"' >> github_run.sh
+              echo '  $($i) || echo ""' >> github_run.sh
+              echo 'done' >> github_run.sh
+              chmod +x github_run.sh
+              ./github_run.sh
+              rm github_run.sh
+            fi
+            # #######################
             # get a list of applications that are running and that are in the ecosystem.config.js. Find the diff and then remove the old graphcommerce applications.
-            export toDelete=$(comm -13 <(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" | jq -r '.[] | {name, instances} | (.name|tostring)' | sort | grep '^graphcommerce') <(pm2 list | sed -e '1,3d' | sed -e '$ d' | awk  '{print $4}' | sort | uniq | grep '^graphcommerce'))
-            if [[ "$toDelete" ]] ; then echo "going to delete: $toDelete"; fi
-            if [[ "$toDelete" ]] ; then pm2 delete $toDelete 2>&1 >> /dev/null; fi
+            # $(node -pe 'JSON.stringify(eval(process.argv[1]).apps)' "$(cat ecosystem.config.js)" # This makes it a json from ecosystem.config.js
+            # sort | grep '^graphcommerce') # removes everything not starting with “graphcommerce”
+            # pm2 list #list all running applications
+            # sed -e '1,3d' # remove first 3 lines
+            # sed -e '$ d' # remove last line
+            # awk  '{print $4}' # print 4th parameter
+            # sort | uniq | grep '^graphcommerce' # sort, remove duplicates, and only remove everything not starting with “graphcommerce”
+            if [[ ${{ inputs.deleteOldApplications }} ]]; then
+              echo $'export toDelete=$(comm -13 <(node -pe \'JSON.stringify(eval(process.argv[1]).apps)\' "$(cat ecosystem.config.js)" | jq -r \'.[] | {name, instances} | (.name|tostring)\' | sort | grep \'^graphcommerce\') <(pm2 list | sed -e \'1,3d\' | sed -e \'$ d\' | awk  \'{print $4}\' | sort | uniq | grep \'^graphcommerce\'))' >> github_run.sh
+              echo $'SAVEIFS=$IFS' >> github_run.sh # Save current IFS (Internal Field Separator)
+              echo "IFS=$'\n'" >> github_run.sh # Change IFS to newline char
+              echo $'toDelete=($toDelete)' >> github_run.sh # split the string into an array by the same name
+              echo $'IFS=$SAVEIFS' >> github_run.sh # Restore original IFS
+              echo $'if [[ "$toDelete" ]] ; then' >> github_run.sh
+                # need to run a for loop in a separate bash script because of bug: https://github.com/appleboy/drone-ssh/issues/175
+                echo 'for i in "${toDelete[@]}"' >> github_run.sh
+                echo 'do' >> github_run.sh
+                echo '  echo "pm2 delete $i"' >> github_run.sh
+                echo '  pm2 delete $i || echo ""' >> github_run.sh
+                echo 'done' >> github_run.sh
+              echo $'fi' >> github_run.sh
+              touch github_run.sh
+              chmod +x github_run.sh
+              ./github_run.sh
+              rm github_run.sh
+            fi
+            # #######################
+            # Force reload of in-memory PM2 with local version of PM2, this is needed when deployment path and other settings change
+            pm2 update
             # Save current process state so processes get restored across reboots
             pm2 save
