@@ -78,7 +78,9 @@ jobs:
             # {name, instances} # take all indices called “name” and “instances”
             # (.name|tostring) # print “name”
             # (.instances|tostring)') # print “instances”
+            echo inputs.scaleApplications: ${{ inputs.scaleApplications }}
             if [[ ${{ inputs.scaleApplications }} ]]; then
+              echo "Scaling applications"
               echo $'export toScale=$(node -pe \'JSON.stringify(eval(process.argv[1]).apps)\' "$(cat ecosystem.config.js)" | jq -r \'.[] | {name, instances} | "pm2 scale " + (.name|tostring) + " " + (.instances|tostring)\')' >> github_run.sh
               echo $'SAVEIFS=$IFS' >> github_run.sh # Save current IFS (Internal Field Separator)
               echo "IFS=$'\n'" >> github_run.sh # Change IFS to newline char
@@ -103,7 +105,9 @@ jobs:
             # sed -e '$ d' # remove last line
             # awk  '{print $4}' # print 4th parameter
             # sort | uniq | grep '^graphcommerce' # sort, remove duplicates, and only remove everything not starting with “graphcommerce”
+            echo inputs.deleteOldApplications: ${{ inputs.deleteOldApplications }}
             if [[ ${{ inputs.deleteOldApplications }} ]]; then
+              echo "Deleting old applications"
               echo $'export toDelete=$(comm -13 <(node -pe \'JSON.stringify(eval(process.argv[1]).apps)\' "$(cat ecosystem.config.js)" | jq -r \'.[] | {name, instances} | (.name|tostring)\' | sort | grep \'^graphcommerce\') <(pm2 list | sed -e \'1,3d\' | sed -e \'$ d\' | awk  \'{print $4}\' | sort | uniq | grep \'^graphcommerce\'))' >> github_run.sh
               echo $'SAVEIFS=$IFS' >> github_run.sh # Save current IFS (Internal Field Separator)
               echo "IFS=$'\n'" >> github_run.sh # Change IFS to newline char
