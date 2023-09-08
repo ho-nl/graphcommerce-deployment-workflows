@@ -19,6 +19,11 @@ on:
         type: boolean
         required: false
         default: true
+      updatePm2:
+        description: Invoke pm2 update after activation
+        type: boolean
+        required: false
+        default: true
       deleteOldApplications:
         description: Delete old applications
         type: boolean
@@ -126,6 +131,8 @@ jobs:
             fi
             # #######################
             # Force reload of in-memory PM2 with local version of PM2, this is needed when deployment path and other settings change
-            pm2 update
+            if [[ "${{ inputs.updatePm2 }}" == "true" ]]; then
+              pm2 update
+            fi
             # Save current process state so processes get restored across reboots
             pm2 save
