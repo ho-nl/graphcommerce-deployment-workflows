@@ -67,7 +67,7 @@ jobs:
           # Allow overriding bind address using VHOSTIP or HOSTNAME environment variables
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.HOSTNAME || process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
           # For newer versions of next, we need to override the bind address differently
-          sed -i '/const hostname = process.env.HOSTNAME || \'localhost\'/c\const hostname = process.env.HOSTNAME || process.env.VHOSTIP || \'localhost\'' .next/standalone/server.js
+          sed -i 's/process.env.HOSTNAME ||/process.env.VHOSTIP || process.env.HOSTNAME ||/g' .next/standalone/server.js
           # add http-graceful-shutdown and health check if exists
           [ -d ./node_modules/http-graceful-shutdown ] && echo "" >> .next/standalone/server.js
           [ -d ./node_modules/http-graceful-shutdown ] && echo "require('http-graceful-shutdown')(server)" >> .next/standalone/server.js
