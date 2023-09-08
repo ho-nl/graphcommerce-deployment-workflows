@@ -66,7 +66,7 @@ jobs:
           NEXT_PRIVATE_STANDALONE=1 yarn build
           # Allow overriding bind address using VHOSTIP or HOSTNAME environment variables
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.HOSTNAME || process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
-          # For newer versions of next, we need to override the bind address differently
+          # For newer versions of next, we need to override the bind address differently (HOSTNAME is now also supported by default)
           sed -i 's/process.env.HOSTNAME ||/process.env.VHOSTIP || process.env.HOSTNAME ||/g' .next/standalone/server.js
           # add http-graceful-shutdown and health check if exists
           [ -d ./node_modules/http-graceful-shutdown ] && echo "" >> .next/standalone/server.js
