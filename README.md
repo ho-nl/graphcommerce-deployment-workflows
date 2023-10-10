@@ -14,7 +14,7 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
 
 ### Prerequisites
 
-- Node 16 must be installed
+- Node 16+ must be installed (or whatever is required for your GraphCommerce version)
 - PM2 must be installed and available as `pm2` in your `PATH`, and should be started across reboots
 - Project must have an `ecosystem.config.js` file in the root folder (see https://pm2.keymetrics.io/docs/usage/application-declaration/)
   -  This file tells PM2 how to run your application. See _Usage_ for an example. 
@@ -48,35 +48,15 @@ jobs:
     # Needed to inherit GitHub secrets (i.e. SSH_KEY; see below)
     secrets: inherit
     with:
-      deployTo: '/path/to/'
       applicationSuffixId: _main
-      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test # Refers to the GitHub environment to inherit secrets from
-      additionalEnv: |
-        GC_MAGENTO_ENDPOINT='https://your-site.com/graphql'
-        GC_MAGENTO_REST_ENDPOINT='https://your-site.com/rest'
-        GC_STOREFRONT_0_MAGENTO_STORE_CODE='your_store_code'
-        GC_ALLOW_ROBOTS=1
-        GC_LIMIT_SSG="0"
   activate-artifact:
     uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-artifact.yml@main
     needs: build-artifact
     secrets: inherit
     with:
-      deployTo: '/path/to/'
+      deployTo: '/data/web/graphcommerce-deploy/'
       applicationSuffixId: _main
-      environment: test
-      serverHost: 'server.example.com'
-      serverUser: 'user'
-      serverPort: 22
-  activate-pm2:
-    uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-pm2.yml@main
-    needs: [activate-artifact-1, activate-artifact-2]
-    secrets: inherit
-    with:
-      deployTo: '/path/to/'
-      applicationSuffixId: _main
-      ecosystemFile: 'ecosystem.config_staging.js' # Optional parameter to use a different ecosystem file
       environment: test
       serverHost: 'server.example.com'
       serverUser: 'user'
@@ -86,6 +66,11 @@ jobs:
     needs: activate-artifact
     secrets: inherit
     with:
+      # You may want to uncomment the lines below to make your deployments more reliable on certain hosting
+      # environments/setups:
+      #deleteOldApplications: false
+      #scaleApplications: false
+      #updatePm2: false
       deployTo: '/data/web/graphcommerce-deploy/'
       applicationSuffixId: _main
       environment: test
@@ -97,10 +82,11 @@ jobs:
       # additionalPath: '/data/web/.npm/bin/'
 ```
 
-You must set up an GitHub environment (you can find this under repository settings) for each environment you deploy to,
-and add the `SSH_KEY` secret to it, so the  workflows can access the target server using SSH. The `SSH_KEY` secret
-should contain the full content of an unencrypted SSH private key file (i.e. `~/.ssh/id_rsa`). The associated public
-key must be in the `~/.ssh/authorized_keys` file on the target server. See also https://github.com/appleboy/ssh-action#setting-up-a-ssh-key
+You must set up an GitHub environment (called `test` in the above example) for each environment you want to deploy to.
+Do this for each environment you deploy to, and add the `SSH_KEY` secret to it so the  workflows can access
+the target server using SSH. The `SSH_KEY` secret should contain the full content of an unencrypted SSH private key file
+(i.e. `~/.ssh/id_rsa`). The associated public key must be in the `~/.ssh/authorized_keys` file on the target server.
+See also https://github.com/appleboy/ssh-action#setting-up-a-ssh-key
 
 An example `ecosystem.config.js` that should work out of the box (you may want to tweak the number of processes):
 
