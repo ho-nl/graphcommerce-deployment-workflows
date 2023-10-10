@@ -88,6 +88,9 @@ the target server using SSH. The `SSH_KEY` secret should contain the full conten
 (i.e. `~/.ssh/id_rsa`). The associated public key must be in the `~/.ssh/authorized_keys` file on the target server.
 See also https://github.com/appleboy/ssh-action#setting-up-a-ssh-key
 
+GraphCommerce configuration variables (i.e. `GC_MAGENTO_ENDPOINT`) can be overridden by adding them as Github Action
+secrets/variables. They will automaticallly be made available during the build job.
+
 An example `ecosystem.config.js` that should work out of the box (you may want to tweak the number of processes):
 
 ```js
