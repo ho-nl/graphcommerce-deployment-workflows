@@ -49,7 +49,9 @@ hypernode-manage-vhosts m2-backend.example.com --https --force-https
 
 TODO: Document running Magento + GraphCommerce on the same hypernode.
 
-Ensure requests are proxied to the node application by creating a new file at  `/data/web/nginx/<you_node_name>.hypernode.io/server.proxypass.conf`:
+Ensure requests are proxied to the node application for the frontend domains by creating a new file at
+`/data/web/nginx/<your_front_end_domain>/server.proxypass.conf`:
+
 ```nginx
 location  ~* ^\/.* {
     proxy_pass  http://127.0.0.1:3000;
@@ -63,6 +65,10 @@ location  ~* ^\/.* {
     proxy_set_header Host $host;
 }
 ```
+
+Repeat the above if your frontend must be reachable by multiple domains. The
+`/data/web/nginx/<your_front_end_domain>` directory should already exist as a result of running the
+`hypernode-manage-vhosts` command when setting up the vhosts.
 
 ## Notes
 - Possible workaround to run PM2 as a forking daemon using supervisord: https://github.com/Supervisor/supervisor/issues/147
