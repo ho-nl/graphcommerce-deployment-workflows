@@ -14,7 +14,10 @@ source ~/.bashrc
 which pm2
 ```
 
-Add pm2 as a service using supervisord, by creating a file at  `~/supervisor/pm2.conf`:
+Add pm2 as a service using supervisord. First follow the documentation on enabling
+supervisord at https://docs.hypernode.com/hypernode-platform/tools/how-to-use-supervisor.html
+
+Then create a file at  `~/supervisor/pm2.conf`:
 ```ini
 [program:pm2]
 command=/data/web/.npm/bin/pm2 resurrect --no-daemon --log /data/web/logs/pm2
