@@ -47,7 +47,8 @@ hypernode-manage-vhosts m2-backend.example.com --https --force-https
 
 ## Proxy setup
 
-TODO: Document running Magento + GraphCommerce on the same hypernode.
+TODO: Ensure the proxypass configuration below does not interfere with automatic Let's Encrypt certificate
+renewal.
 
 Ensure requests are proxied to the node application for the frontend domains by creating a new file at
 `/data/web/nginx/<your_front_end_domain>/server.proxypass.conf`:
