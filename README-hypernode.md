@@ -33,7 +33,7 @@ supervisorctl add pm2
 pm2 list
 ```
 
-### Setup vhosts + SSL certificates
+## Setup vhosts + SSL certificates
 
 For each relevant domain name (i.e. the one used to reach the GraphCommerce frontend, and the one used to
 reach the Magento backend, in case both are running side-by-side on the same Hypernode), we need to add a
@@ -69,8 +69,4 @@ location  ~* ^\/.* {
 
 Repeat the above if your frontend must be reachable by multiple domains. The
 `/data/web/nginx/<your_front_end_domain>` directory should already exist as a result of running the
-`hypernode-manage-vhosts` command when setting up the vhosts.
-
-## Notes
-- Possible workaround to run PM2 as a forking daemon using supervisord: https://github.com/Supervisor/supervisor/issues/147
-    - Running the daemon without forking (using `--no-daemon`) seems to work fine though.
+`hypernode-manage-vhosts` command when setting up the vhosts in the previous step.
