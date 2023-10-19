@@ -20,6 +20,8 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
   -  This file tells PM2 how to run your application. See _Usage_ for an example. 
 - Project must be built in standalone mode (set `output` to `'standalone'` in `next.config.js`)
 
+If you are running on Hypernode, refer to [README-hypernode.md](README-hypernode.md) before following the below guide.
+
 ### Usage
 
 To use these re-usable workflows to deploy your GraphCommerce project to specific environment (for example _test_),
