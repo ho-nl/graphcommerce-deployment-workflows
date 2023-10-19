@@ -33,7 +33,21 @@ supervisorctl add pm2
 pm2 list
 ```
 
+### Setup vhosts + SSL certificates
+
+For each relevant domain name (i.e. the one used to reach the GraphCommerce frontend, and the one used to
+reach the Magento backend, in case both are running side-by-side on the same Hypernode), we need to add a
+vhost to enable the use of Let's Encrypt SSL certificates. This assumes you are using
+[Managed Vhosts](https://docs.hypernode.com/hypernode-platform/nginx/hypernode-managed-vhosts.html)
+
+```sh
+hypernode-manage-vhosts gc-frontend.example.com --https --force-https
+hypernode-manage-vhosts m2-backend.example.com --https --force-https
+```
+
 ## Proxy setup
+
+TODO: Document running Magento + GraphCommerce on the same hypernode.
 
 Ensure requests are proxied to the node application by creating a new file at  `/data/web/nginx/<you_node_name>.hypernode.io/server.proxypass.conf`:
 ```nginx
