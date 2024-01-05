@@ -18,7 +18,8 @@ In this setup, the GraphCommerce will be running in standalone mode using the PM
 - PM2 must be installed and available as `pm2` in your `PATH`, and should be started across reboots
 - Project must have an `ecosystem.config.js` file in the root folder (see https://pm2.keymetrics.io/docs/usage/application-declaration/)
   -  This file tells PM2 how to run your application. See _Usage_ for an example. 
-- Project must be built in standalone mode (set `output` to `'standalone'` in `next.config.js`)
+- Project must be built in standalone mode (set `output` to `'standalone'` in `next.config.js`), for example:
+  - `output: process.env.STANDALONE ? 'standalone' : undefined,` (see https://github.com/ho-nl/project-kommago-gc/blob/0f92050/next.config.js#L40C3-L40C61)
 
 If you are running on Hypernode, refer to [README-hypernode.md](README-hypernode.md) before following the below guide.
 
