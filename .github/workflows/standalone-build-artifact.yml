@@ -68,6 +68,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           echo $(node -v)
+          export NODE_OPTIONS="--max_old_space_size=6144"
           NEXT_PRIVATE_STANDALONE=1 yarn build
           # Allow overriding bind address using VHOSTIP or HOSTNAME environment variables
           sed -i '/server.listen(currentPort, (err) => {/c\server.listen(currentPort, process.env.HOSTNAME || process.env.VHOSTIP || "0.0.0.0", (err) => {' .next/standalone/server.js
