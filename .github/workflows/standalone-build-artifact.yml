@@ -37,11 +37,16 @@ on:
         type: string
         required: false
         default: ''
+      runner:
+        description: Github Action runner to use. Defaults to 'ubuntu-latest'
+        type: string
+        required: false
+        default: 'ubuntu-latest'
 
 jobs:
   build-artifact:
     name: Build deployment artifact
-    runs-on: power
+    runs-on: ${{ inputs.runner }}
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v3
