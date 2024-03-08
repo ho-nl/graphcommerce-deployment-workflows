@@ -41,7 +41,7 @@ on:
 jobs:
   build-artifact:
     name: Build deployment artifact
-    runs-on: ubuntu-latest
+    runs-on: power
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v3
