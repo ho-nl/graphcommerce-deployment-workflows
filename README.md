@@ -39,6 +39,12 @@ on:
       - main
   # Allow manual triggering of workflow
   workflow_dispatch:
+    inputs:
+      limitSsg:
+        type: boolean
+        description: Limit Static Site Generation
+        required: true
+        default: false
 
 # Ensure we don't run multiple deployments for this environment, and cancel running deployments on new pushes
 concurrency:
@@ -53,6 +59,7 @@ jobs:
     with:
       applicationSuffixId: _main
       environment: test # Refers to the GitHub environment to inherit secrets from
+      limitSsg: ${{ inputs.limitSsg == true }}
   activate-artifact:
     uses: ho-nl/graphcommerce-deployment-workflows/.github/workflows/standalone-activate-artifact.yml@main
     needs: build-artifact
