@@ -27,6 +27,16 @@ on:
         type: string
         required: false
         default: '16'
+      limitSsg:
+        description: Limit static site generation
+        type: boolean
+        required: false
+        default: false
+      checkoutRef:
+        description: Reference to use in checkout (see 'ref' parameter in https://github.com/actions/checkout)
+        type: string
+        required: false
+        default: ''
 
 jobs:
   build-artifact:
@@ -35,6 +45,8 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.checkoutRef }}
       - name: Node.js
         uses: actions/setup-node@v3
         with:
@@ -57,6 +69,8 @@ jobs:
 
           # additionalEnv input is the legacy way to override configuration variables
           echo "${{ inputs.additionalEnv }}" >> .env
+
+          echo "GC_LIMIT_SSG=${{ inputs.limitSsg }}" >> .env
 
           # Read repository variables and secrets that are GraphCommerce specific, and write them to the .env file. We
           # use the `toJSON` github action expression to fetch all variables in one go, and pipe them through `jq` to
