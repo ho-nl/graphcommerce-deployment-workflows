@@ -15,7 +15,7 @@ which pm2
 ```
 
 Add pm2 as a service using supervisord. First follow the documentation on enabling
-supervisord at https://docs.hypernode.com/hypernode-platform/tools/how-to-use-supervisor.html
+supervisord at https://docs.hypernode.com/hypernode-platform/tools/how-to-use-supervisor.html (you can skip the part about setting up a an actual service with supervisor)
 
 Then create a file at  `~/supervisor/pm2.conf`:
 ```ini
