@@ -9,7 +9,7 @@ on:
         description: Override for which file to use for ecosystem.config.js
         type: string
         required: false
-        default: "ecosystem.config.js"
+        default: 'ecosystem.config.js'
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
@@ -26,7 +26,7 @@ on:
         description: Version of node used by yarn to build the application
         type: string
         required: false
-        default: "16"
+        default: '16'
       limitSsg:
         description: Limit static site generation
         type: boolean
@@ -36,12 +36,12 @@ on:
         description: Reference to use in checkout (see 'ref' parameter in https://github.com/actions/checkout)
         type: string
         required: false
-        default: ""
+        default: ''
       runner:
         description: Github Action runner to use. Defaults to 'ubuntu-latest'
         type: string
         required: false
-        default: "ubuntu-latest"
+        default: 'ubuntu-latest'
 
 jobs:
   build-artifact:
@@ -56,7 +56,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.nodeVersion }}
-          cache: "yarn"
+          cache: 'yarn'
       - name: Restore cache
         uses: actions/cache@v3
         with:
@@ -97,8 +97,6 @@ jobs:
           [ -d ./node_modules/http-graceful-shutdown ] && echo "" >> .next/standalone/server.js
           [ -d ./node_modules/http-graceful-shutdown ] && echo "require('http-graceful-shutdown')(server)" >> .next/standalone/server.js
           [ -d ./node_modules/http-graceful-shutdown ] && echo "require('./.next/server/pages/api/health').then((m) => m.default())" >> .next/standalone/server.js
-          [ -f ./pages/api/health.ts ] && echo "" >> .next/standalone/server.js
-          [ -f ./pages/api/health.ts ] && echo "require('./.next/server/pages/api/health').then((m) => m.default())" >> .next/standalone/server.js
           cp -R public .next/standalone/public
           cp ecosystem.config.js .next/standalone/
           cp ${{ inputs.ecosystemFile }} .next/standalone/
