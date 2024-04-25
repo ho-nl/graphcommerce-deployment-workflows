@@ -26,7 +26,7 @@ on:
         description: Version of node used by yarn to build the application
         type: string
         required: false
-        default: '16'
+        default: '20'
       limitSsg:
         description: Limit static site generation
         type: boolean
