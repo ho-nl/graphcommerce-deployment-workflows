@@ -9,7 +9,7 @@ on:
         description: Override for which file to use for ecosystem.config.js
         type: string
         required: false
-        default: "ecosystem.config.js"
+        default: 'ecosystem.config.js'
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
@@ -26,7 +26,7 @@ on:
         description: Version of node used by yarn to build the application
         type: string
         required: false
-        default: "16"
+        default: '20'
       limitSsg:
         description: Limit static site generation
         type: boolean
@@ -36,12 +36,12 @@ on:
         description: Reference to use in checkout (see 'ref' parameter in https://github.com/actions/checkout)
         type: string
         required: false
-        default: ""
+        default: ''
       runner:
         description: Github Action runner to use. Defaults to 'ubuntu-latest'
         type: string
         required: false
-        default: "ubuntu-latest"
+        default: 'ubuntu-latest'
 
 jobs:
   build-artifact:
@@ -49,16 +49,16 @@ jobs:
     runs-on: ${{ inputs.runner }}
     environment: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.4
         with:
           ref: ${{ inputs.checkoutRef }}
       - name: Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ inputs.nodeVersion }}
-          cache: "yarn"
+          cache: 'yarn'
       - name: Restore cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.0.2
         with:
           path: ${{ github.workspace }}/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}
@@ -108,7 +108,7 @@ jobs:
         run: echo "$(node -v)"
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: deployment-artifact
           path: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
