@@ -110,5 +110,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4.3.3
         with:
-          name: deployment-artifact
+          name: deployment-artifact-${{ inputs.applicationSuffixId }}
           path: ${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz
