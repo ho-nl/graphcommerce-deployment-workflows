@@ -9,7 +9,7 @@ on:
         description: Override for which file to use for ecosystem.config.js
         type: string
         required: false
-        default: 'ecosystem.config.js'
+        default: "ecosystem.config.js"
       applicationSuffixId:
         description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
         type: string
@@ -26,7 +26,7 @@ on:
         description: Version of node used by yarn to build the application
         type: string
         required: false
-        default: '20'
+        default: "20"
       limitSsg:
         description: Limit static site generation
         type: boolean
@@ -36,12 +36,12 @@ on:
         description: Reference to use in checkout (see 'ref' parameter in https://github.com/actions/checkout)
         type: string
         required: false
-        default: ''
+        default: ""
       runner:
         description: Github Action runner to use. Defaults to 'ubuntu-latest'
         type: string
         required: false
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
 
 jobs:
   build-artifact:
@@ -56,7 +56,7 @@ jobs:
         uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ inputs.nodeVersion }}
-          cache: 'yarn'
+          cache: "yarn"
       - name: Restore cache
         uses: actions/cache@v4.0.2
         with:
@@ -80,8 +80,8 @@ jobs:
           # Read repository variables and secrets that are GraphCommerce specific, and write them to the .env file. We
           # use the `toJSON` github action expression to fetch all variables in one go, and pipe them through `jq` to
           # turn them back into a .env compatible format.
-          echo $ALL_VARS    |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | { grep GC_ || true; } >> .env
-          echo $ALL_SECRETS |  jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' | { grep GC_ || true; } >> .env
+          echo $ALL_VARS    |  jq -r '.|with_entries(select(.key|startswith("GC_")))|to_entries|map("\(.key)=\"\(.value|tostring)\"")|.[]' | true >> .env
+          echo $ALL_SECRETS |  jq -r '.|with_entries(select(.key|startswith("GC_")))|to_entries|map("\(.key)=\"\(.value|tostring)\"")|.[]' | true >> .env
       - name: Build
         env:
           GITHUB_SHA: ${{ github.sha }}
