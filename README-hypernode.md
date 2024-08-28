@@ -67,3 +67,9 @@ location  ~* ^\/.* {
 Repeat the above if your frontend must be reachable by multiple domains. The
 `/data/web/nginx/<your_front_end_domain>` directory should already exist as a result of running the
 `hypernode-manage-vhosts` command when setting up the vhosts in the previous step.
+
+## Whitelisting the frontend server
+
+If your Magento backend is also running on the Hypernode platform, but not on the same hypernode as the frontend, you
+will want to whitelist the frontend Hypernode to avoid it being blocked by the bot protection due to a high number of
+requests. Refer to the Hypernode docs at https://docs.hypernode.com/hypernode-platform/tools/how-to-use-the-hypernode-systemctl-cli-tool.html#use-the-hypernode-systemctl-tool-to-whitelist-ips on how to do this.
