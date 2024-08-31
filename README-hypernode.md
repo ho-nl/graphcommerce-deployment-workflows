@@ -29,9 +29,9 @@ Add and launch the pm2 service:
 ```sh
 supervisorctl reread
 supervisorctl add pm2
-# This should show an (empty) list of processes without launching a new daemon:
-pm2 list
 ```
+The PM2 daemon should now be running. To check that it works, run `pm2 list`; this should show an
+empty process-list, instead of starting a new daemon.
 
 ## Setup vhosts + SSL certificates
 
