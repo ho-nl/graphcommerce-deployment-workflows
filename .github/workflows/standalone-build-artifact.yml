@@ -11,9 +11,10 @@ on:
         required: false
         default: "ecosystem.config.js"
       applicationSuffixId:
-        description: Suffix id for the application (set to 1 for 1st application, 2 for 2nd, etc)
+        description: Suffix used to differentiate between applications. This is meant to be used when a single deployment to a single environment requires multiple builds (i.e. b2c + b2b). Defaults to `main`.
         type: string
-        required: true
+        required: false
+        default: "main"
       environment:
         description: The github environment to inherit secrets from
         type: string
