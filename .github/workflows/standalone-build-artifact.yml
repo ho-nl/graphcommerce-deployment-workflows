@@ -53,6 +53,8 @@ jobs:
       - uses: actions/checkout@v4.1.4
         with:
           ref: ${{ inputs.checkoutRef }}
+      - name: Enable Corepack
+        run: corepack enable
       - name: Node.js
         uses: actions/setup-node@v4.0.2
         with:
