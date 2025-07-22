@@ -72,4 +72,17 @@ Repeat the above if your frontend must be reachable by multiple domains. The
 
 If your Magento backend is also running on the Hypernode platform, but not on the same hypernode as the frontend, you
 will want to whitelist the frontend Hypernode to avoid it being blocked by the bot protection due to a high number of
-requests. Refer to the Hypernode docs at https://docs.hypernode.com/hypernode-platform/tools/how-to-use-the-hypernode-systemctl-cli-tool.html#use-the-hypernode-systemctl-tool-to-whitelist-ips on how to do this.
+requests. (Note: it might be neccesary to do this even if on the same hypernode.)
+
+In either case you can simply whitelist the IP of the hypernode that hosts the frontend by adding the following
+file under `~/nginx/http.ratelimit`:
+
+```
+geo $conn_limit_map {
+    default $remote_addr;
+    1.2.3.4 ''; # Replace with relevant IP
+}
+```
+
+Warning: this might make you more susceptible to high server load due to bots. A solution
+such as Cloudflare WAF is recommended.
