@@ -66,8 +66,6 @@ jobs:
           path: ${{ github.workspace }}/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}
           restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('yarn.lock') }}-
-      - name: Dependencies
-        run: yarn install --frozen-lockfile --immutable
       - name: Generate environment configuration
         env:
           ALL_VARS: ${{ toJSON(vars) }}
@@ -85,6 +83,8 @@ jobs:
           # turn them back into a .env compatible format.
           echo $ALL_VARS    | { jq -r '.|with_entries(select(.key|startswith("GC_")))|to_entries|map("\(.key)=\"\(.value|tostring)\"")|.[]' || true; } >> .env
           echo $ALL_SECRETS | { jq -r '.|with_entries(select(.key|startswith("GC_")))|to_entries|map("\(.key)=\"\(.value|tostring)\"")|.[]' || true; } >> .env
+      - name: Dependencies
+        run: yarn install --frozen-lockfile --immutable
       - name: Build
         env:
           GITHUB_SHA: ${{ github.sha }}
