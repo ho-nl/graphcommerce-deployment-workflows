@@ -86,3 +86,9 @@ geo $conn_limit_map {
 
 Warning: this might make you more susceptible to high server load due to bots. A solution
 such as Cloudflare WAF is recommended.
+
+## TODOs
+
+- Figure out a more optimal method of serving static resources and data (_next/static, others?),
+  requests for which are now passed directly to the nextjs application while they could be served
+  directly from disk by nginx/apache
