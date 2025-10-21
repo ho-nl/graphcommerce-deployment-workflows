@@ -65,7 +65,7 @@ jobs:
     needs: build-artifact
     secrets: inherit
     with:
-      deployTo: '/data/web/deploy-graphcommerce/'
+      deployTo: '/data/web/deployment-graphcommerce/'
       applicationSuffixId: _main
       environment: test
       serverHost: 'server.example.com'
@@ -81,7 +81,7 @@ jobs:
       #deleteOldApplications: false
       #scaleApplications: false
       #updatePm2: false
-      deployTo: '/data/web/deploy-graphcommerce/'
+      deployTo: '/data/web/deployment-graphcommerce/'
       applicationSuffixId: _main
       environment: test
       serverHost: 'server.example.com'
