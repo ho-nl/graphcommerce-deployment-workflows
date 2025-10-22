@@ -78,9 +78,9 @@ In either case you can simply whitelist the IP of the hypernode that hosts the f
 file under `~/nginx/http.ratelimit`:
 
 ```
-geo $conn_limit_map {
+geo $limit_conn_per_ip {
     default $remote_addr;
-    1.2.3.4 ''; # Replace with relevant IP
+    198.51.100.69 ''; # Replace with relevant IP adress
 }
 ```
 
