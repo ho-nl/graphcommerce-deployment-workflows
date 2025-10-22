@@ -77,7 +77,7 @@ requests. (Note: it might be neccesary to do this even if on the same hypernode.
 In either case you can simply whitelist the IP of the hypernode that hosts the frontend by adding the following
 file under `~/nginx/http.ratelimit`:
 
-```
+```nginx
 geo $limit_conn_per_ip {
     default $remote_addr;
     198.51.100.69 ''; # Replace with relevant IP adress
