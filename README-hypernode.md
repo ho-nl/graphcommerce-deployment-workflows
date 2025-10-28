@@ -97,8 +97,9 @@ limiting, see https://github.com/ByteInternet/hypernode-docs-next/pull/423 (this
 incorrect documentation for whitelisting URLs)
 
 Note: this might also make you more susceptible to DoS by bots, crawlers or malicious actors.
-Todo: we should limit this whitelisting rule to GET requests to lower DoS risks
-Todo: maybe we can exclude by a custom header instead, and send this header during builds?
+
+Todo: we should limit this whitelisting rule to GET requests to lower DoS risks, or maybe we can
+exclude by a custom header instead, and send this header during builds?
 
 ## TODOs
 
