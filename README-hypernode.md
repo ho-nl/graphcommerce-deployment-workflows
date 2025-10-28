@@ -89,15 +89,16 @@ such as Cloudflare WAF is recommended.
 
 ## Whitelisting for external builds / CI
 
-Things like CI builds might get ratelimited and fail due to the rate at which calls are made to the
-/graphql endpoint during builds.
+Builds might get ratelimited (especially on the cheaper Hypernode plans) and fail due to the
+rate at which calls are made to the `/graphql` endpoint.
 
-To avoid this it is possible to whitelist URLs and exclude these from IP-based rate limiting, see
-https://github.com/ByteInternet/hypernode-docs-next/pull/423 (this PR fixes old
+To avoid this, it is possible to exclude requests to `/graphql` specifically from IP-based rate
+limiting, see https://github.com/ByteInternet/hypernode-docs-next/pull/423 (this PR fixes old
 incorrect documentation for whitelisting URLs)
 
 Note: this might also make you more susceptible to DoS by bots, crawlers or malicious actors.
-Todo: we shuld limit this whitelisting rule to GET requests to lower DoS risks
+Todo: we should limit this whitelisting rule to GET requests to lower DoS risks
+Todo: maybe we can exclude by a custom header instead, and send this header during builds?
 
 ## TODOs
 
