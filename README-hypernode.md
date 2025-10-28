@@ -87,6 +87,18 @@ geo $limit_conn_per_ip {
 Warning: this might make you more susceptible to high server load due to bots. A solution
 such as Cloudflare WAF is recommended.
 
+## Whitelisting 
+
+Things like CI builds might get ratelimited and fail due to the rate at which calls are made to the
+/graphql endpoint during builds.
+
+To avoid this it is possible to whitelist URLs and exclude these from IP-based rate limiting, see
+https://github.com/ByteInternet/hypernode-docs-next/pull/423 (this PR fixes old
+incorrect documentation for whitelisting URLs)
+
+Note: this might also make you more susceptible to DoS by bots, crawlers or malicious actors.
+Todo: we shuld limit this whitelisting rule to GET requests to lower DoS risks
+
 ## TODOs
 
 - Figure out a more optimal method of serving static resources and data (_next/static, others?),
