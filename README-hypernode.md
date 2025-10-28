@@ -87,7 +87,7 @@ geo $limit_conn_per_ip {
 Warning: this might make you more susceptible to high server load due to bots. A solution
 such as Cloudflare WAF is recommended.
 
-## Whitelisting 
+## Whitelisting for external builds / CI
 
 Things like CI builds might get ratelimited and fail due to the rate at which calls are made to the
 /graphql endpoint during builds.
