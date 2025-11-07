@@ -123,6 +123,10 @@ You can add a port number optionally:
                 "PORT": 3000
             }
 ```
+### GraphCommerce/Next.js configuration
+
+- You will likely want to set `NextConfig.cacheMaxMemorySize` to `0` to avoid caching inconsistencies between
+  cluster processes and limit memory usage. Note that fs cache will still be used.
 
 ### Caveats
 
