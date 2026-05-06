@@ -110,7 +110,8 @@ module.exports = {
             name: "graphcommerce{applicationSuffixId}",
             script: "./graphcommerce{applicationSuffixId}/current/server.js",
             exec_mode: "cluster",
-            instances: 20
+            instances: 20,
+            time: true
         }
     ]
 }
