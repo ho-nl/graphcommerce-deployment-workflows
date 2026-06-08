@@ -41,7 +41,7 @@ jobs:
           printf '%s\n' "$SSH_KEY" | tr -d '\r' > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
           trap 'rm -f /tmp/deploy_key' EXIT
-          rsync -avz --progress -e "ssh -p ${{ inputs.serverPort }} -i /tmp/deploy_key -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=3" \
+          rsync -avz --progress -e "ssh -vvv -p ${{ inputs.serverPort }} -i /tmp/deploy_key -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=3" \
             "${{ github.sha }}_${{ inputs.applicationSuffixId }}.tar.gz" \
             "${{ inputs.serverUser }}@${{ inputs.serverHost }}:${{ inputs.deployTo }}./artifacts/"
       - name: Node version
