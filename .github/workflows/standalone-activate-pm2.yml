@@ -59,7 +59,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          echo “$SSH_KEY” > /tmp/deploy_key
+          printf '%s\n' “$SSH_KEY” | tr -d '\r' > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
           trap 'rm -f /tmp/deploy_key' EXIT
           ssh -p ${{ inputs.serverPort }} \
