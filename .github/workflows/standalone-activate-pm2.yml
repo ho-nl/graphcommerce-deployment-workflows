@@ -55,6 +55,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+      - name: Show public IPv4
+        continue-on-error: true
+        run: curl -s https://api.ipify.org && echo
+      - name: Runner IPv4
+        continue-on-error: true
+        run: curl -4 echoip.savvii.com
+      - name: Runner IPv6
+        continue-on-error: true
+        run: curl -6 echoip.savvii.com
       - name: Activate
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
