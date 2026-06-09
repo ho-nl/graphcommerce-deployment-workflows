@@ -23,11 +23,16 @@ on:
       serverUser:
         type: string
         required: true
+      runner:
+        description: Github Action runner to use. Defaults to 'ubuntu-latest'
+        type: string
+        required: false
+        default: "ubuntu-latest"
 
 jobs:
   activate-artifact:
     name: Upload and activate artifact
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
     environment: ${{ inputs.environment }}
     steps:
       - name: Download artifact
