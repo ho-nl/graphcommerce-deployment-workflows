@@ -128,6 +128,7 @@ You can add a port number optionally:
 
 - You will likely want to set `NextConfig.cacheMaxMemorySize` to `0` to avoid caching inconsistencies between
   cluster processes and limit memory usage. Note that fs cache will still be used.
+- You may also want to adjust set a maximum size for the image optimizer cache, see https://nextjs.org/docs/pages/api-reference/components/image#maximumdiskcachesize
 
 ### Caveats
 
