@@ -128,7 +128,10 @@ You can add a port number optionally:
 
 - You will likely want to set `NextConfig.cacheMaxMemorySize` to `0` to avoid caching inconsistencies between
   cluster processes and limit memory usage. Note that fs cache will still be used.
-- You may also want to adjust set a maximum size for the image optimizer cache, see https://nextjs.org/docs/pages/api-reference/components/image#maximumdiskcachesize
+- You will want to limit the size of the image optimizer cache (`.next/cache/images`), which can otherwise grow until
+  the disk is full. Next.js 16.2+ supports this with `images.maximumDiskCacheSize`, see
+  https://nextjs.org/docs/pages/api-reference/components/image#maximumdiskcachesize. For big caches or older Next.js
+  versions, use the [`gc-image-cache-cleanup`](bin/gc-image-cache-cleanup.md) cron script instead.
 
 ### Caveats
 
