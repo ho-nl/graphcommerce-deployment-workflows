@@ -15,12 +15,13 @@
  * Environment:
  *   GC_IMAGE_CACHE_MAX_SIZE  Required. Maximum size in binary units, e.g. 500M, 20G or 1T.
  *   GC_DEPLOY_DIR            Defaults to ~/graphcommerce-deploy.
+ *   GC_APPLICATION_NAME      Directory of the application within GC_DEPLOY_DIR. Defaults to main.
  *
- * The cache is read from $GC_DEPLOY_DIR/graphcommerce_main/shared/.next/cache/images. Runs append
+ * The cache is read from $GC_DEPLOY_DIR/$GC_APPLICATION_NAME/shared/.next/cache/images. Runs append
  * JSON lines to $GC_DEPLOY_DIR/logs/image-cache-cleanup.log: a `start` line with the parameters, a
  * `finish` line with statistics, or `skipped` / `error` when a run doesn't start or crashes. Lines
- * of the same run share the `pid`. When the deploy dir itself doesn't exist errors only go to
- * stderr.
+ * of the same run share the `pid` and every line includes the `application`. When the deploy dir
+ * itself doesn't exist errors only go to stderr.
  *
  * Sizes are disk usage (allocated blocks of the entry directory and its file). The top-level
  * cache directory itself is not counted, as removing entries doesn't shrink it.
@@ -43,7 +44,8 @@ const PROGRESS_EVERY = 100_000
 
 const dryRun = process.argv.includes('--dry-run')
 const deployDir = process.env.GC_DEPLOY_DIR || path.join(os.homedir(), 'graphcommerce-deploy')
-const cacheDirSetting = path.join(deployDir, 'graphcommerce_main/shared/.next/cache/images')
+const applicationName = process.env.GC_APPLICATION_NAME || 'main'
+const cacheDirSetting = path.join(deployDir, applicationName, 'shared/.next/cache/images')
 const logFile = path.join(deployDir, 'logs', 'image-cache-cleanup.log')
 const maxBytes = parseSize(process.env.GC_IMAGE_CACHE_MAX_SIZE)
 
@@ -64,7 +66,13 @@ const seconds = (from, to = Date.now()) => Math.round((to - from) / 100) / 10
 const log = (message) => console.log(`[${new Date().toISOString()}] ${message}`)
 
 const logLine = (event, details) =>
-  `${JSON.stringify({ event, time: new Date().toISOString(), pid: process.pid, ...details })}\n`
+  `${JSON.stringify({
+    event,
+    time: new Date().toISOString(),
+    pid: process.pid,
+    application: applicationName,
+    ...details,
+  })}\n`
 
 async function appendLog(event, details) {
   // Not recursive: a mistyped GC_DEPLOY_DIR shouldn't create a deploy dir just to hold the log.
@@ -96,6 +104,9 @@ process.on('uncaughtException', (error) => {
 })
 
 if (maxBytes === null) await fail('Set GC_IMAGE_CACHE_MAX_SIZE to a size like 500M, 20G or 1T')
+if (!/^[\w.-]+$/.test(applicationName) || /^\.+$/.test(applicationName)) {
+  await fail(`Invalid GC_APPLICATION_NAME: ${applicationName}`)
+}
 
 const cacheDir = await fs
   .realpath(cacheDirSetting)
