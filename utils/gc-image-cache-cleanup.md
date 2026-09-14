@@ -7,11 +7,15 @@ Meant to run nightly from cron.
 
 Before Next.js 16.2 the image cache is never cleaned up, so it grows until the disk is full. Next.js 16.2 added
 [`images.maximumDiskCacheSize`](https://nextjs.org/docs/pages/api-reference/components/image#maximumdiskcachesize),
-but that implementation doesn't suit large caches served by a PM2 cluster:
+but judging by its implementation it doesn't suit large caches served by a PM2 cluster:
 
 - Every process reads all cache files at startup to build its LRU, which is slow and heavy with millions of entries.
 - The LRU is kept in memory per process, so cluster workers each track only part of the cache and can't enforce a
   shared limit.
+
+> [!NOTE]
+> These drawbacks are based on reading the Next.js source and haven't been verified in practice yet. Evaluate
+> `images.maximumDiskCacheSize` on a real setup at some point; this script may not be needed for Next.js 16.2+.
 
 ## Installation
 
