@@ -26,23 +26,22 @@ and needs Node.js 18.15 or newer.
 | ------------------------- | -------------------------------------------------------------------------------------- |
 | `GC_IMAGE_CACHE_MAX_SIZE` | Required. Maximum cache size in binary units, e.g. `500M`, `20G` or `1T`.              |
 | `GC_DEPLOY_DIR`           | The `deployTo` directory of your deployment. Defaults to `$HOME/graphcommerce-deploy`. |
-| `GC_APPLICATION_NAME`     | The application's directory within `GC_DEPLOY_DIR`. Defaults to `main`.                |
+| `GC_APPLICATION_NAME`     | The application's directory within `GC_DEPLOY_DIR`.                                    |
 
-The cache is read from `$GC_DEPLOY_DIR/$GC_APPLICATION_NAME/shared/.next/cache/images`. With the current workflows the
-application directory is `graphcommerce` followed by the `applicationSuffixId`, e.g. `graphcommerce_main`.
+The cache is read from `$GC_DEPLOY_DIR/$GC_APPLICATION_NAME/shared/.next/cache/images`.
 
 ## Usage
 
 Validate with a dry run first; it logs what would be removed without deleting anything:
 
 ```sh
-GC_IMAGE_CACHE_MAX_SIZE=20G node $HOME/bin/gc-image-cache-cleanup.mjs --dry-run
+GC_IMAGE_CACHE_MAX_SIZE=20G GC_APPLICATION_NAME=graphcommerce_main node $HOME/bin/gc-image-cache-cleanup.mjs --dry-run
 ```
 
 Example crontab line, running nightly at midnight:
 
 ```
-0 0 * * * GC_IMAGE_CACHE_MAX_SIZE=20G node $HOME/bin/gc-image-cache-cleanup.mjs > /dev/null 2>&1
+0 0 * * * GC_IMAGE_CACHE_MAX_SIZE=20G GC_APPLICATION_NAME=graphcommerce_main node $HOME/bin/gc-image-cache-cleanup.mjs > /dev/null 2>&1
 ```
 
 For multiple applications (e.g. a b2c/b2b split), add a line per application with its own `GC_APPLICATION_NAME` and
